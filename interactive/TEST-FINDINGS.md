@@ -18,7 +18,7 @@ All core functionality tests pass successfully. No bugs discovered during end-to
 | 2 | Dockerfile Assembly Line | ✓ RENDERS | Sequencer + Fill-blanks; render test passes, full automation requires advanced sequencer logic |
 | 3 | Dockerfile Surgery Circus | ✓ FULLY PLAYED | Surgical-tool refactor of a bloated single-stage Dockerfile into a lean multi-stage build → discharge |
 | 4 | Outage Response | ✓ RENDERS | Quiz with 5 scenarios; render test passes, radio button selectors need refinement |
-| 5 | Build the Bridge | ✓ RENDERS | DragSort (control-plane/worker) + Sequencer; render test passes, selector refinement needed |
+| 5 | Binding Magistrate | ✓ FULLY PLAYED | Scheduler binding puzzle (resource fit + nodeSelector + taints/tolerations) → certify the bind→run component roles |
 | 6 | Bootstrap the Cluster | ✓ RENDERS | Sequencer + Fill-in-the-blanks; render test passes, sequencer logic complex |
 | 7 | Manifest Builder | ✓ RENDERS | YamlBuilder (YAML fragment assembly with drag-and-drop); render test passes, drag-drop logic complex |
 | 8 | Desired State | ✓ RENDERS | Custom simulator (slider, reconcile, rolling updates); render test passes, simulator logic skipped |

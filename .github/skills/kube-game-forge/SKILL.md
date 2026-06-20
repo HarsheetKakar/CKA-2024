@@ -20,7 +20,8 @@ day's topic** so that playing the game teaches the actual Kubernetes idea.
 
 1. **Always know the topic first.** Determine the exact day and Kubernetes topic before
    generating anything, and **tell the user** which topic you are designing for.
-2. **Always ask the user questions** before the big generation step (see "Interview").
+2. **Decide the design parameters yourself with best judgement** — do **not** interview the
+   user. Choose format, session length, tone, and win-feeling from the topic (see "Step 2").
 3. **The creative generation must run on GPT-5.5 at xhigh reasoning effort** via a Task
    sub-agent (see "Generation"). Do not invent the 5 ideas in the main thread.
 4. **Exactly 5 ideas**, each radically different from the others and from existing games.
@@ -44,35 +45,37 @@ day's topic** so that playing the game teaches the actual Kubernetes idea.
   list `Resources/Day*/` and read the relevant `readme.md` (and `task.md`) to extract the
   **core concept** (e.g. pods, deployments, services, RBAC, networking, storage,
   StatefulSets, scheduling, etc.).
-- Summarize the topic back to the user in 2–3 sentences: what the concept is, the key
-  mental model, and the most common things learners get wrong. **State explicitly:**
-  "I'm designing games for **Day NN — <topic>**." Confirm this is the intended topic.
+- Summarize the topic in 2–3 sentences: what the concept is, the key mental model, and the
+  most common things learners get wrong. **State explicitly:** "I'm designing games for
+  **Day NN — <topic>**." Proceed on best judgement — don't wait for confirmation.
 
-## Step 2 — Interview the user (always ask)
+## Step 2 — Set the design parameters yourself (best judgement, no interview)
 
-The audience is **always a CKA aspirant** (exam-prep level) — assume this and **do not
-ask** about audience/level. Design for someone studying for the Certified Kubernetes
-Administrator exam.
+**Do not ask the user any questions.** Decide every design parameter yourself using best
+judgement, driven by the topic, and briefly state the choices you made before generating.
+
+The audience is **always a CKA aspirant** (exam-prep level) — design for someone studying
+for the Certified Kubernetes Administrator exam.
 
 This project is **frontend-only**. Every game must run entirely in the browser as static
 frontend (HTML/CSS/JS). The player **cannot** run anything in a terminal, use real
-`kubectl`, run a backend/server, or install a desktop client — so **never ask** about
-backend, server, CLI, or `kubectl` options, and never propose ideas that require them.
-Any Kubernetes "commands" or cluster behavior must be **simulated in the frontend**.
+`kubectl`, run a backend/server, or install a desktop client — never propose ideas that
+require them. Any Kubernetes "commands" or cluster behavior must be **simulated in the
+frontend**.
 
-Use the `ask_user` tool — one focused question at a time, prefer multiple choice. Ask at
-least the questions relevant to shaping the design, for example:
+Choose, with reasons grounded in the topic, sensible defaults for:
 
-- **Format:** single-player browser game, multiplayer (browser-based), simulated
-  in-browser "terminal" feel, or an interactive board/card/puzzle UI — all rendered as
-  frontend.
-- **Session length:** quick 2-minute drill vs. a deep 30-minute scenario?
-- **Tone / vibe:** playful & cartoony, sci-fi, gritty ops "war room", cozy, or absurd?
-- **Constraint to respect:** must be buildable in a single one-shot pass? any visual or
-  accessibility requirements?
-- **What "winning" should feel like** for this topic.
+- **Format:** single-player browser game, simulated in-browser "terminal/console" feel, or
+  an interactive board/card/puzzle UI — all rendered as frontend. Pick what best fits the
+  concept's mechanics.
+- **Session length:** default to a quick 2–5 minute drill with high replayability unless the
+  topic genuinely needs a longer scenario.
+- **Tone / vibe:** pick one that fits the topic (e.g. gritty ops "war room" for failures and
+  reconciliation, puzzle-calm for manifests/structure, playful for fundamentals).
+- **What "winning" should feel like:** tie the victory emotion to the topic's core insight.
 
-Fold their answers into the brief you hand to the generator.
+Fold these self-chosen parameters into the brief you hand to the generator, and vary them
+across the 5 ideas where it produces stronger, more distinct games.
 
 ## Step 3 — Study current standards (quick grounding)
 
@@ -91,8 +94,8 @@ the `task` tool with:
 - `mode: "sync"`
 - A `prompt` that contains the **complete** brief (the sub-agent is stateless), including:
   the Day number and topic, the extracted core concept and common misconceptions, the
-  **CKA-aspirant (exam-prep) audience**, the user's interview answers, the inspiration
-  notes, and the exact output contract below.
+  **CKA-aspirant (exam-prep) audience**, your self-chosen design parameters (format, session
+  length, tone, win-feeling), the inspiration notes, and the exact output contract below.
 
 Instruct the sub-agent to return **exactly 5 radically new game ideas**. Tell it the hard
 constraint up front: each idea must be **frontend-only** (runs entirely in the browser as
@@ -133,8 +136,8 @@ re-run, or generate yourself as a fallback — but the default path is GPT-5.5 x
 
 - Restate the Day/topic you designed for.
 - Present the 5 ideas verbatim from the generator (lightly formatted).
-- Add a short **recommendation**: which idea best fits their interview answers and why,
-  and note the highest-Buildability option for a quick win.
+- Add a short **recommendation**: which idea best fits the topic and your chosen design
+  parameters and why, and note the highest-Buildability option for a quick win.
 - Offer next steps: flesh out one idea into a spec, or prototype the "first build step".
 
 ## Style

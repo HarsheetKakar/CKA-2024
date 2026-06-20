@@ -1,86 +1,107 @@
 /**
- * Day 04 — Outage Response: orchestrator capabilities.
- * Concepts (Days 1-4): standalone container limits, what an orchestrator adds.
- * Capabilities (no YAML, no future objects): self-healing, horizontal scaling, rollback,
- * service discovery/load-balancing, rescheduling.
+ * Day 04 — Replica Requiem: why we need Kubernetes.
+ *
+ * A ~2-minute war-room drill. The player keeps a critical service's pods alive across three
+ * nodes while an escalating storm of crashes and node blackouts arrives. In MANUAL mode the
+ * only tools are per-pod restarts and waiting out blackouts — the pain of standalone
+ * containers. Flipping the reconciliation CONTROLLER on lets the player declare a desired
+ * replica count and walk away while the loop self-heals and reschedules the pods — the moment
+ * the request graph goes calm teaches declarative desired state.
+ *
+ * Concepts (Days 1-4, no future objects/YAML): standalone-container limits, desired state,
+ * reconciliation, self-healing, rescheduling, horizontal scaling, stable load-balanced demand.
  */
 
 export const day04Concepts = {
   allowedConcepts: [
     'container',
     'orchestrator',
+    'desired-state',
+    'reconciliation',
     'self-healing',
+    'rescheduling',
     'scaling',
-    'rollback',
-    'discovery',
   ],
   introducedConcepts: [
+    'desired-replica-count',
+    'control-loop-reconcile',
     'self-healing-restart',
-    'horizontal-scaling',
-    'rollback-previous',
-    'service-discovery',
     'node-rescheduling',
+    'horizontal-scaling',
   ],
 };
 
-export interface OutageScenario {
+export interface NodeDef {
   id: string;
-  scenario: string;
-  prompt: string;
-  choices: { id: string; label: string }[];
-  correct: string;
+  label: string;
 }
 
-const capabilities = [
-  { id: 'cap-self-heal', label: 'Restart failed workloads automatically' },
-  { id: 'cap-scale', label: 'Scale horizontally to handle traffic spikes' },
-  { id: 'cap-rollback', label: 'Roll back to a previous working version' },
-  { id: 'cap-discovery', label: 'Maintain stable DNS and load-balance requests' },
-  { id: 'cap-reschedule', label: 'Reschedule workloads to healthy nodes' },
+/** The three nodes the pods are spread across. */
+export const nodes: NodeDef[] = [
+  { id: 'node-1', label: 'Node 1' },
+  { id: 'node-2', label: 'Node 2' },
+  { id: 'node-3', label: 'Node 3' },
 ];
 
-export const outageScenarios: OutageScenario[] = [
-  {
-    id: 'q-crash',
-    scenario: '📡 3 AM emergency alert',
-    prompt: 'Your app container crashed at 3 AM on a Friday. What should the orchestrator do?',
-    choices: [capabilities[0], capabilities[1], capabilities[3], capabilities[4]],
-    correct: 'cap-self-heal',
-  },
-  {
-    id: 'q-traffic',
-    scenario: '🎉 Black Friday begins',
-    prompt: 'Traffic is 10× normal. Your app is drowned. What helps most?',
-    choices: [capabilities[0], capabilities[1], capabilities[2], capabilities[3]],
-    correct: 'cap-scale',
-  },
-  {
-    id: 'q-buggy',
-    scenario: '🔴 Release goes wrong',
-    prompt: 'You deployed a new version, but it has critical bugs. How do you recover quickly?',
-    choices: [capabilities[1], capabilities[2], capabilities[3], capabilities[4]],
-    correct: 'cap-rollback',
-  },
-  {
-    id: 'q-addresses',
-    scenario: '🔗 Discovery chaos',
-    prompt: 'Your service instances keep getting different IP addresses. Clients lose track. How?',
-    choices: [capabilities[0], capabilities[2], capabilities[3], capabilities[4]],
-    correct: 'cap-discovery',
-  },
-  {
-    id: 'q-node-fail',
-    scenario: '💀 Node failure',
-    prompt:
-      'A server (node) in your cluster died, taking all its workloads with it. What saves you?',
-    choices: [capabilities[1], capabilities[2], capabilities[3], capabilities[4]],
-    correct: 'cap-reschedule',
-  },
-];
+/**
+ * All tunable game constants for the drill, kept out of the component so the balance can be
+ * adjusted without touching logic. Times are in ticks unless suffixed Ms.
+ */
+export const replicaRequiem = {
+  /** Master clock: one reconcile/storm/budget step per tick. */
+  tickMs: 700,
 
-export const outageQuestions = outageScenarios.map((s) => ({
-  id: s.id,
-  scenario: s.scenario,
-  prompt: s.prompt,
-  choices: s.choices,
-}));
+  /** Desired-replica dial bounds. The player declares intent within this range. */
+  desired: { min: 0, max: 8, initial: 0 },
+
+  /**
+   * Live demand = the number of healthy pods customers need right now. Surges raise it to
+   * teach horizontal scaling: the player must lift the dial above demand to stay green.
+   */
+  demand: { base: 3, surgePeak: 5 },
+
+  /** Error budget / availability gauge (0-100). Hitting 0 ends the shift in failure. */
+  budget: {
+    start: 100,
+    max: 100,
+    min: 0,
+    /** Drained per missing healthy pod, per tick, while below demand. */
+    drainPerMissing: 7,
+    /** Regained per tick while healthy pods meet or beat demand. */
+    regen: 4,
+    /** At/above this budget the fleet of pods counts as "calm" for the stability streak. */
+    calmThreshold: 82,
+  },
+
+  /** The escalating incident storm. */
+  storm: {
+    /** Per-tick probability a healthy pod crashes, at the start of the shift. */
+    crashBaseProb: 0.22,
+    /** Added to the crash probability every tick (the swarm ramps up). */
+    crashRampPerTick: 0.012,
+    /** Hard cap on the crash probability. */
+    crashMaxProb: 0.78,
+    /** Per-tick probability a whole node blacks out (kicks in mid-shift). */
+    blackoutProb: 0.06,
+    /** No blackouts before this tick — let the player find their feet first. */
+    blackoutAfterTick: 8,
+    /** How many ticks a node stays down before power returns. */
+    blackoutDuration: 6,
+  },
+
+  /**
+   * Win when the controller holds the fleet calm (budget >= calmThreshold and healthy >=
+   * demand) for this many consecutive ticks — the incident feed falls silent.
+   */
+  winStreakTicks: 9,
+
+  /** Stars: every `starScale` starved ticks costs one star (starsFromMistakes). */
+  starScale: 6,
+
+  copy: {
+    service: 'checkout',
+    surge: 'Traffic surge incoming — demand is climbing. Scale the dial up!',
+    win: 'The requests are absorbed and the graph goes calm. The pods hold themselves — no hands needed.',
+    loseBudget: 'Error budget exhausted. The service went dark — manual toil lost the shift.',
+  },
+} as const;

@@ -60,25 +60,33 @@ test('Day 2 (Dockerfile Assembly Line) is fully playable to completion', async (
   await expect(page.locator('.debrief')).toContainText('Voyage complete');
 });
 
-test('Day 4 (Outage Response) quiz is fully playable to completion', async ({ page }) => {
+test('Day 4 (Replica Requiem) is fully playable to completion', async ({ page }) => {
   await unlockAll(page);
   await page.goto('/#/day/day04');
-  await expect(page.getByRole('heading', { name: 'Outage Response' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Replica Requiem' })).toBeVisible();
 
-  const answers: [string, string][] = [
-    ['container crashed at 3 AM', 'Restart failed workloads automatically'],
-    ['Traffic is 10× normal', 'Scale horizontally to handle traffic spikes'],
-    ['critical bugs', 'Roll back to a previous working version'],
-    ['different IP addresses', 'Maintain stable DNS and load-balance requests'],
-    ['node) in your cluster died', 'Reschedule workloads to healthy nodes'],
-  ];
-  for (const [promptFragment, choice] of answers) {
-    const card = page.locator('fieldset.quiz__card', { hasText: promptFragment });
-    await card.locator('label.quiz__choice', { hasText: choice }).click();
-  }
-  await primaryCheck(page).click();
+  // The "How to play" modal opens on load — dismiss it first.
+  await page.getByRole('button', { name: /Got it/ }).click();
 
-  await expect(page.locator('.debrief')).toContainText('Voyage complete');
+  // Start the shift, then make the declarative move: set a generous desired replica
+  // count and switch the reconciliation controller on. The control loop self-heals the
+  // pods every tick, so the calm streak builds to a win without further intervention.
+  await page.getByRole('button', { name: /Begin shift/ }).click();
+
+  await page.locator('#day04-desired').evaluate((el) => {
+    const input = el as HTMLInputElement;
+    const setter = Object.getOwnPropertyDescriptor(
+      HTMLInputElement.prototype,
+      'value',
+    )!.set!;
+    setter.call(input, '8');
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+  });
+
+  await page.getByRole('button', { name: /Controller OFF/ }).click();
+  await expect(page.getByRole('button', { name: /Controller ON/ })).toBeVisible();
+
+  await expect(page.locator('.debrief')).toContainText('Voyage complete', { timeout: 30000 });
 });
 
 test('Day 10 (Harbor Partition) is fully playable to completion', async ({ page }) => {
