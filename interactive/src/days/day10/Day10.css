@@ -1,0 +1,94 @@
+.day10 {
+  display: grid;
+  gap: var(--sp-4);
+}
+.day10__lede {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  max-width: 60ch;
+}
+.day10__lede strong {
+  color: var(--text);
+}
+.day10__lede code {
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  color: var(--accent);
+  background: var(--surface);
+  padding: 2px 6px;
+  border-radius: var(--r-sm);
+}
+
+/* DNS Scenarios */
+.day10__dns-scenarios {
+  display: grid;
+  gap: var(--sp-4);
+}
+.day10__scenario {
+  display: grid;
+  gap: var(--sp-3);
+  padding: var(--sp-4);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  transition: border-color var(--dur-mid) var(--ease-out);
+}
+.day10__scenario.is-invalid {
+  border-color: var(--danger);
+  background: rgba(242, 84, 91, 0.05);
+}
+.day10__scenario-desc {
+  font-size: 0.95rem;
+  color: var(--text);
+  font-weight: 500;
+}
+
+/* Segment pool */
+.day10__segment-pool {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+}
+.day10__segment {
+  padding: var(--sp-2) var(--sp-3);
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  background: var(--hull);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  color: var(--text);
+  cursor: pointer;
+  transition: all var(--dur-fast) var(--ease-out);
+}
+.day10__segment:hover {
+  background: var(--hull-raised);
+  border-color: var(--signal);
+}
+.day10__segment.is-selected {
+  background: var(--signal);
+  color: var(--abyss);
+  border-color: var(--signal);
+  font-weight: 600;
+}
+
+/* DNS preview */
+.day10__dns-preview {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-3);
+  background: var(--hull);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-md);
+  min-height: 50px;
+}
+.day10__dns-preview code {
+  flex: 1;
+  font-family: var(--font-mono);
+  font-size: 1rem;
+  color: var(--accent);
+  font-weight: 600;
+}
+.day10__clear {
+  flex-shrink: 0;
+}

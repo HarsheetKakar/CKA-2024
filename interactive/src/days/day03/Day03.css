@@ -1,0 +1,60 @@
+.day03 {
+  display: grid;
+  gap: var(--sp-4);
+}
+
+.day03__lede {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  max-width: 60ch;
+}
+
+.day03__lede strong {
+  color: var(--text);
+}
+
+.day03__lede code {
+  font-family: var(--font-mono);
+  background-color: var(--surface-raised);
+  padding: 0 var(--sp-1);
+  border-radius: var(--r-sm);
+  color: var(--text);
+}
+
+.day03__size-meter {
+  display: grid;
+  gap: var(--sp-2);
+  max-width: 40ch;
+  padding: var(--sp-3);
+  background-color: var(--surface-raised);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-md);
+}
+
+.day03__size-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.day03__size-percent {
+  font-weight: 600;
+  color: var(--text);
+  font-family: var(--font-mono);
+}
+
+.day03__size-bar {
+  height: 1.5rem;
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  overflow: hidden;
+}
+
+.day03__size-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--success), var(--success-dim));
+  transition: width 300ms ease-out;
+}

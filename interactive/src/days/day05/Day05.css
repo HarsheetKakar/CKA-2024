@@ -1,0 +1,23 @@
+.day05 {
+  display: grid;
+  gap: var(--sp-4);
+}
+
+.day05__lede {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  max-width: 60ch;
+}
+
+.day05__lede strong {
+  color: var(--text);
+}
+
+.day05__lede code {
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  padding: 0 var(--sp-2);
+  font-family: var(--font-mono);
+  color: var(--accent);
+}

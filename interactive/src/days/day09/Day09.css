@@ -1,0 +1,73 @@
+.day09 {
+  display: grid;
+  gap: var(--sp-4);
+}
+.day09__lede {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  max-width: 60ch;
+}
+.day09__lede strong {
+  color: var(--text);
+}
+.day09__lede code {
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  color: var(--accent);
+  background: var(--surface);
+  padding: 2px 6px;
+  border-radius: var(--r-sm);
+}
+
+/* Quiz */
+.day09__quiz {
+  display: grid;
+  gap: var(--sp-4);
+}
+.day09__question {
+  padding: var(--sp-3);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  transition: border-color var(--dur-mid) var(--ease-out);
+}
+.day09__question.is-invalid {
+  border-color: var(--danger);
+  background: rgba(242, 84, 91, 0.05);
+}
+.day09__scenario {
+  margin-bottom: var(--sp-3);
+  font-size: 0.95rem;
+  color: var(--text);
+  font-weight: 500;
+}
+.day09__options {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: var(--sp-2);
+}
+.day09__option {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-2) var(--sp-3);
+  background: var(--hull);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  cursor: pointer;
+  transition: all var(--dur-fast) var(--ease-out);
+}
+.day09__option:hover {
+  background: var(--hull-raised);
+  border-color: var(--signal);
+}
+.day09__option input[type='radio'] {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--signal);
+}
+.day09__option span {
+  font-size: 0.9rem;
+  color: var(--text);
+  font-weight: 500;
+}

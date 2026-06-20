@@ -91,7 +91,11 @@ function Row({
         {item.detail && <span className="sequencer__detail">{item.detail}</span>}
       </div>
       {!locked && (
-        <div className="sequencer__moves" role="group" aria-label={`Move ${slotLabel} ${index + 1}`}>
+        <div
+          className="sequencer__moves"
+          role="group"
+          aria-label={`Move ${slotLabel} ${index + 1}`}
+        >
           <button
             type="button"
             className="sequencer__move"

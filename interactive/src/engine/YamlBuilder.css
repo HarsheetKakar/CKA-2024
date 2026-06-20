@@ -93,7 +93,9 @@
   border-radius: var(--r-sm);
   background: var(--surface);
   color: var(--text-muted);
-  transition: border-color var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
+  transition:
+    border-color var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out);
 }
 .yamlb__line-actions button:hover:not(:disabled) {
   border-color: var(--active);

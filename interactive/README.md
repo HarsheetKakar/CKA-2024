@@ -1,73 +1,72 @@
-# React + TypeScript + Vite
+# Helmsman — A Kubernetes Voyage
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+An interactive, **frontend-only** companion to the [CKA-2024](https://github.com/piyushsachdeva/CKA-2024)
+course. Each lesson becomes a small, self-contained puzzle: drag cargo crates, assemble Dockerfiles,
+wire Services, reconcile replicas. _Kubernetes_ means **helmsman** — the pilot who steers the ship —
+so the whole thing is dressed as a **Harbor Operations Console**.
 
-Currently, two official plugins are available:
+> Pilot covers **Days 1–10**. The architecture is built to extend to the rest of the course.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Run it locally
 
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+cd interactive
+npm install
+npm run dev      # start the dev server (Vite)
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+Then open the printed local URL. To preview a production build:
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm run build    # type-check (tsc) + bundle (vite) into dist/
+npm run preview  # serve the built dist/ locally
 ```
+
+There is **no backend and no deploy step** — everything is bundled and runs locally. Progress is
+saved in your browser's `localStorage`; the hub has a **Reset progress** control.
+
+## Scripts
+
+| Command           | What it does                           |
+| ----------------- | -------------------------------------- |
+| `npm run dev`     | Vite dev server with HMR               |
+| `npm run build`   | `tsc -b` type-check, then `vite build` |
+| `npm run preview` | Serve the production build             |
+| `npm run test`    | Run the Vitest unit tests              |
+| `npm run lint`    | ESLint over `src`                      |
+| `npm run format`  | Prettier write                         |
+
+## How it works
+
+- **Stack:** React + Vite + TypeScript (strict), plain CSS with semantic design tokens, `HashRouter`
+  with a relative `base` so the built `dist/` is portable.
+- **Hub** (`/`) is a voyage chart: ten ports plus a **helm-wheel progress compass** that lights as
+  days are completed. Days unlock sequentially; completed days are replayable.
+- **Day page** (`/day/dayNN`) is an instrument console: the game stage in the centre and a "Ship's
+  Log" panel (objective, hints, timer, best stars) on the side.
+- **Engine primitives** in `src/engine/` are reusable, accessible interaction building blocks
+  (`DragSort`, `Sequencer`, `MatchPairs`, `Quiz`, `YamlBuilder`, `ConnectionBoard`). They own the
+  _interaction_ and a11y input modes; each **day owns its own win condition and scoring**.
+- **Scoring** is **accuracy-only**: 0–5 stars from wrong attempts at "Check"/"Submit" (5★ = flawless).
+  Hints are free and never cost stars. Elapsed time is shown for personal interest, never as a fail.
+- **Content rule:** each day's puzzle only uses concepts introduced on that day or earlier — no
+  forward references. Puzzle data lives in `src/data/dayNN.ts`.
+
+## Project layout
+
+```
+src/
+  components/   shared UI (ObjectivePanel, HelmCompass, StarRating, CheckBar, StageStepper…)
+  engine/       reusable interaction primitives + shared validation contract (types.ts)
+  days/         one folder per day (dayNN/DayNN.tsx) + registry.ts (metadata + lazy imports)
+  data/         per-day puzzle content/answers as typed TS
+  pages/        Hub, DayPage, NotFound
+  store/        zustand progress store (localStorage persistence)
+  hooks/        useReducedMotion
+  styles/       tokens.css (palette + semantic tokens), global.css
+```
+
+## Accessibility
+
+Dark theme only, WCAG-AA contrast. Every drag interaction has a non-drag fallback (assign buttons,
+move up/down, select-then-select). Visible keyboard focus, and `prefers-reduced-motion` is respected.

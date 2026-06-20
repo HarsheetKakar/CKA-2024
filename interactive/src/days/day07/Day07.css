@@ -1,0 +1,12 @@
+.day07 {
+  display: grid;
+  gap: var(--sp-4);
+}
+.day07__lede {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  max-width: 60ch;
+}
+.day07__lede strong {
+  color: var(--text);
+}

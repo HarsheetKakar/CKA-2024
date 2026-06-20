@@ -10,11 +10,7 @@ export interface StarRatingProps {
 
 export function StarRating({ value, max = 5, size = 18, label }: StarRatingProps) {
   return (
-    <span
-      className="starrating"
-      role="img"
-      aria-label={label ?? `${value} out of ${max} stars`}
-    >
+    <span className="starrating" role="img" aria-label={label ?? `${value} out of ${max} stars`}>
       {Array.from({ length: max }, (_, i) => (
         <Star
           key={i}

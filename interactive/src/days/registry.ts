@@ -180,7 +180,6 @@ export const days: DayMeta[] = [
   },
 ];
 
-export const dayBySlug = (slug: string): DayMeta | undefined =>
-  days.find((d) => d.slug === slug);
+export const dayBySlug = (slug: string): DayMeta | undefined => days.find((d) => d.slug === slug);
 
 export const dayById = (id: number): DayMeta | undefined => days.find((d) => d.id === id);

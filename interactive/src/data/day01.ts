@@ -41,10 +41,20 @@ export interface ArchPair {
 
 export const archMatch = {
   pairs: [
-    { id: 'client', term: 'Docker client', roleId: 'r-client', role: 'Sends commands you type (the docker CLI)' },
+    {
+      id: 'client',
+      term: 'Docker client',
+      roleId: 'r-client',
+      role: 'Sends commands you type (the docker CLI)',
+    },
     { id: 'daemon', term: 'Docker daemon', roleId: 'r-daemon', role: 'Builds and runs containers' },
     { id: 'image', term: 'Image', roleId: 'r-image', role: 'Read-only template for a container' },
     { id: 'registry', term: 'Registry', roleId: 'r-registry', role: 'Stores and shares images' },
-    { id: 'container', term: 'Container', roleId: 'r-container', role: 'A running instance of an image' },
+    {
+      id: 'container',
+      term: 'Container',
+      roleId: 'r-container',
+      role: 'A running instance of an image',
+    },
   ] satisfies ArchPair[],
 };

@@ -41,6 +41,13 @@ Congratulations to all the amazing participants who dedicated their time and eff
 
 A huge thanks to everyone who participated, shared their learning journey, and contributed to building this amazing community! 🙏
 
+## 🚢 Interactive practice — Helmsman
+
+Want to *play* the first ten days instead of just reading them? **Helmsman — A Kubernetes Voyage**
+is a frontend-only, local web app that turns Days 1–10 into interactive puzzles (sort containers,
+assemble Dockerfiles, wire Services, reconcile replicas, and more). See
+[`interactive/`](./interactive) — run it with `cd interactive && npm install && npm run dev`.
+
 ### Day0: Intro to the series
 [![Course Introduction](https://img.youtube.com/vi/6_gMoe7Ik8k/sddefault.jpg)](https://youtu.be/6_gMoe7Ik8k)
 - Course Introduction

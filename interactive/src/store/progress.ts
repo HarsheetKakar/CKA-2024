@@ -39,10 +39,7 @@ export const useProgress = create<ProgressState>()(
 );
 
 /** A day is unlocked when the previous day is completed. Day 1 is always open. */
-export function isDayUnlocked(
-  dayId: number,
-  days: Record<number, DayProgress>,
-): boolean {
+export function isDayUnlocked(dayId: number, days: Record<number, DayProgress>): boolean {
   if (dayId <= 1) return true;
   return days[dayId - 1]?.completed ?? false;
 }

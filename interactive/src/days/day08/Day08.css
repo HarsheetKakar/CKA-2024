@@ -1,0 +1,162 @@
+.day08 {
+  display: grid;
+  gap: var(--sp-4);
+}
+.day08__lede {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  max-width: 60ch;
+}
+.day08__lede strong {
+  color: var(--text);
+}
+
+/* Stage 1 — Reconciliation controls */
+.day08__controls {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-3);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+}
+.day08__label {
+  font-weight: 600;
+  color: var(--text);
+}
+.day08__dial {
+  flex: 1;
+  max-width: 240px;
+}
+.day08__dial-value {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--accent);
+  min-width: 2ch;
+  text-align: center;
+}
+
+/* Gauge */
+.day08__gauge {
+  display: grid;
+  gap: var(--sp-2);
+}
+.day08__gauge-label {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+.day08__gauge-bar {
+  position: relative;
+  height: 24px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  overflow: hidden;
+}
+.day08__gauge-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--signal-dim), var(--signal));
+  transition: width var(--dur-mid) var(--ease-out);
+}
+
+/* Pod fleet */
+.day08__fleet {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-3);
+  padding: var(--sp-4);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  min-height: 120px;
+}
+.day08__pod {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-1);
+  padding: var(--sp-3);
+  background: var(--hull-raised);
+  border: 2px solid var(--border-strong);
+  border-radius: var(--r-md);
+  width: 100px;
+  height: 80px;
+  font-size: 0.8rem;
+  transition: all var(--dur-mid) var(--ease-out);
+}
+.day08__pod.is-sunk {
+  opacity: 0.3;
+  background: var(--danger-dim);
+  border-color: var(--danger);
+}
+.day08__pod--v1 {
+  background: var(--hull-raised);
+  border-color: var(--brass-dim);
+}
+.day08__pod--v2 {
+  background: var(--hull-raised);
+  border-color: var(--signal);
+  box-shadow: var(--glow-signal);
+}
+.day08__pod-label {
+  font-weight: 600;
+  color: var(--text);
+}
+.day08__pod-version {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+.day08__sink-btn {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 20px;
+  height: 20px;
+  display: grid;
+  place-items: center;
+  background: var(--danger);
+  color: var(--text);
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 0.9rem;
+  line-height: 1;
+  transition: transform var(--dur-fast) var(--ease-out);
+}
+.day08__sink-btn:hover {
+  transform: scale(1.1);
+}
+
+/* Stage 2 — Selector group */
+.day08__selector-group {
+  display: grid;
+  gap: var(--sp-2);
+  padding: var(--sp-3);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+}
+.day08__selector-group legend {
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: var(--sp-2);
+}
+.day08__selector-option {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  cursor: pointer;
+}
+.day08__selector-option input[type='checkbox'] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--signal);
+}
+.day08__selector-option code {
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  color: var(--text);
+}

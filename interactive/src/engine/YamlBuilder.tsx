@@ -1,12 +1,5 @@
 import { useState } from 'react';
-import {
-  ArrowDown,
-  ArrowLeftToLine,
-  ArrowRightToLine,
-  ArrowUp,
-  Plus,
-  X,
-} from 'lucide-react';
+import { ArrowDown, ArrowLeftToLine, ArrowRightToLine, ArrowUp, Plus, X } from 'lucide-react';
 import './YamlBuilder.css';
 
 export interface YamlFragment {
@@ -181,7 +174,9 @@ export function YamlBuilder({
             )}
           </li>
         ))}
-        {lines.length === 0 && <li className="yamlb__line-empty">Insert fragments to build the manifest.</li>}
+        {lines.length === 0 && (
+          <li className="yamlb__line-empty">Insert fragments to build the manifest.</li>
+        )}
       </ol>
 
       <figure className="yamlb__preview">

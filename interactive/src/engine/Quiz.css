@@ -92,8 +92,7 @@
 }
 .quiz__choice.is-checked .quiz__radio {
   border-color: var(--active);
-  background:
-    radial-gradient(circle at center, var(--active) 0 4px, transparent 5px);
+  background: radial-gradient(circle at center, var(--active) 0 4px, transparent 5px);
 }
 .quiz__choice input:focus-visible + .quiz__radio {
   outline: 2px solid var(--focus-ring);
