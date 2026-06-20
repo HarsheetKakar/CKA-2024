@@ -297,15 +297,15 @@ test('Day 4: Initial render — no premature completion overlay', async ({ page 
   const errorCapture = await captureErrors(page);
 
   await page.goto('/#/day/day04');
-  await expect(page.getByRole('heading', { name: 'Outage Response' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Replica Requiem' })).toBeVisible();
   await expect(page.locator('.debrief')).toHaveCount(0);
-  await expect(page.getByRole('button', { name: /Check|Resolve/ })).toBeVisible();
+  await expect(page.getByRole('button', { name: /Begin shift/ })).toBeVisible();
 
   expect(errorCapture.pageErrors.length).toBe(0);
 });
 
-test.skip('Day 4: Fully playable — Quiz questions to completion', async ({ page }) => {
-  // Quiz selectors are complex due to radio button structure; skipping full play for now
+test.skip('Day 4: Fully playable — covered in extra-plays.spec.ts', async ({ page }) => {
+  // Full Replica Requiem playthrough lives in extra-plays.spec.ts (timer-driven).
   expect(true).toBe(true);
 });
 
