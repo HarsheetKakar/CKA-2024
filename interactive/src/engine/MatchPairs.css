@@ -1,0 +1,102 @@
+.matchpairs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--sp-4);
+}
+@media (max-width: 560px) {
+  .matchpairs {
+    grid-template-columns: 1fr;
+  }
+}
+
+.matchpairs__col ul {
+  display: grid;
+  gap: var(--sp-2);
+}
+.matchpairs__heading {
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  margin-bottom: var(--sp-3);
+}
+
+.matchpairs__node {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  text-align: left;
+  background: var(--surface-raised);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-md);
+  padding: var(--sp-2) var(--sp-3);
+  transition:
+    border-color var(--dur-fast) var(--ease-out),
+    box-shadow var(--dur-fast) var(--ease-out),
+    background var(--dur-fast) var(--ease-out),
+    transform var(--dur-fast) var(--ease-out);
+}
+.matchpairs__node:hover {
+  border-color: var(--active);
+}
+.matchpairs__node:disabled {
+  cursor: default;
+}
+
+.matchpairs__index {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--brass);
+  color: #2a1a06;
+  font-weight: 700;
+  font-size: 0.78rem;
+  font-family: var(--font-mono);
+}
+.matchpairs__text {
+  display: grid;
+  gap: 1px;
+  flex: 1;
+}
+.matchpairs__label {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+.matchpairs__detail {
+  font-size: 0.76rem;
+  color: var(--text-muted);
+}
+.matchpairs__status {
+  font-size: 0.72rem;
+  color: var(--text-faint);
+  font-family: var(--font-mono);
+  white-space: nowrap;
+}
+
+.matchpairs__left.is-pending {
+  border-color: var(--accent);
+  box-shadow: var(--glow-brass);
+}
+.matchpairs__left.is-matched {
+  border-color: var(--active-dim);
+}
+.matchpairs__node.is-locked {
+  border-color: var(--success);
+  box-shadow: 0 0 0 1px var(--signal-dim);
+  opacity: 0.92;
+}
+.matchpairs__node.is-invalid {
+  border-color: var(--danger);
+  box-shadow: 0 0 0 1px var(--danger-dim);
+}
+.matchpairs__right.is-targetable {
+  border-style: dashed;
+  border-color: var(--accent);
+}
+.matchpairs__right.is-used {
+  background: rgba(61, 204, 199, 0.08);
+}

@@ -1,0 +1,138 @@
+.yamlb {
+  display: grid;
+  gap: var(--sp-3);
+}
+
+.yamlb__pool {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  padding: var(--sp-3);
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--r-md);
+}
+.yamlb__pool-empty {
+  font-size: 0.8rem;
+  color: var(--text-faint);
+  font-style: italic;
+}
+.yamlb__tile {
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-sm);
+  background: var(--surface-raised);
+  padding: var(--sp-1) var(--sp-2);
+  transition:
+    border-color var(--dur-fast) var(--ease-out),
+    box-shadow var(--dur-fast) var(--ease-out);
+}
+.yamlb__tile code {
+  color: var(--foam);
+}
+.yamlb__tile:hover {
+  border-color: var(--active);
+}
+.yamlb__tile.is-selected {
+  border-color: var(--accent);
+  box-shadow: var(--glow-brass);
+}
+
+.yamlb__insertbar {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  flex-wrap: wrap;
+}
+.yamlb__hint {
+  font-size: 0.76rem;
+  color: var(--text-faint);
+}
+.yamlb__rejection {
+  min-height: 1.1em;
+  font-size: 0.8rem;
+  color: var(--danger);
+  font-weight: 600;
+}
+.yamlb__rejection:empty {
+  display: none;
+}
+
+.yamlb__lines {
+  display: grid;
+  gap: var(--sp-1);
+  background: var(--bg-sunk);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: var(--sp-3);
+  min-height: 80px;
+}
+.yamlb__line {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+}
+.yamlb__rail {
+  flex-shrink: 0;
+  height: 18px;
+  border-left: 2px solid var(--border-strong);
+}
+.yamlb__line-text {
+  flex: 1;
+  color: var(--foam);
+  font-size: 0.88rem;
+}
+.yamlb__line-actions {
+  display: flex;
+  gap: 2px;
+}
+.yamlb__line-actions button {
+  width: 26px;
+  height: 26px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  color: var(--text-muted);
+  transition: border-color var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
+}
+.yamlb__line-actions button:hover:not(:disabled) {
+  border-color: var(--active);
+  color: var(--text);
+}
+.yamlb__line-actions button:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+.yamlb__line-empty {
+  font-size: 0.82rem;
+  color: var(--text-faint);
+  font-style: italic;
+}
+
+.yamlb__preview {
+  margin: 0;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-md);
+  overflow: hidden;
+}
+.yamlb__preview figcaption {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-faint);
+  padding: var(--sp-2) var(--sp-3);
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+.yamlb__preview pre {
+  margin: 0;
+  padding: var(--sp-3);
+  background: #07131c;
+  overflow-x: auto;
+}
+.yamlb__preview code {
+  color: var(--signal);
+  font-size: 0.85rem;
+  line-height: 1.6;
+  white-space: pre;
+}

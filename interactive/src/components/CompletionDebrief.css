@@ -1,0 +1,65 @@
+.debrief {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: grid;
+  place-items: center;
+  padding: var(--sp-4);
+  background: rgba(8, 22, 33, 0.78);
+  backdrop-filter: blur(6px);
+  animation: debrief-fade var(--dur-mid) var(--ease-out);
+}
+@keyframes debrief-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+.debrief__card {
+  width: min(440px, 100%);
+  text-align: center;
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-xl);
+  padding: var(--sp-8) var(--sp-6);
+  box-shadow: var(--shadow-raised);
+  animation: debrief-rise var(--dur-slow) var(--ease-snap);
+}
+@keyframes debrief-rise {
+  from {
+    transform: translateY(14px) scale(0.97);
+    opacity: 0;
+  }
+}
+
+.debrief__title {
+  font-size: 2rem;
+  margin-top: var(--sp-3);
+  color: var(--foam);
+}
+.debrief__subtitle {
+  color: var(--text-muted);
+  font-size: 0.92rem;
+}
+.debrief__stars {
+  margin: var(--sp-5) 0 var(--sp-3);
+  color: var(--brass);
+}
+.debrief__praise {
+  color: var(--text);
+  font-size: 0.95rem;
+  margin-bottom: var(--sp-5);
+}
+.debrief__notes {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  font-size: 0.86rem;
+  margin-bottom: var(--sp-5);
+}
+.debrief__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  justify-content: center;
+}

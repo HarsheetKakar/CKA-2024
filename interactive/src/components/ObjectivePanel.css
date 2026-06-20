@@ -1,0 +1,103 @@
+.objpanel {
+  display: grid;
+  gap: var(--sp-5);
+  align-content: start;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: var(--sp-5);
+  box-shadow: var(--shadow-2);
+  position: sticky;
+  top: var(--sp-4);
+}
+
+.objpanel__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-2);
+  flex-wrap: wrap;
+}
+.objpanel__meters {
+  display: flex;
+  gap: var(--sp-3);
+}
+.objpanel__meter {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}
+.objpanel__meter.is-warn {
+  color: var(--danger);
+}
+
+.objpanel__section {
+  display: grid;
+  gap: var(--sp-2);
+}
+.objpanel__title {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--accent);
+}
+.objpanel__objective {
+  font-size: 0.92rem;
+  color: var(--text);
+  line-height: 1.6;
+}
+.objpanel__best {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--sp-2) var(--sp-3);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  background: var(--bg-sunk);
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.objpanel__hints {
+  display: grid;
+  gap: var(--sp-2);
+}
+.objpanel__hints li {
+  font-size: 0.86rem;
+  color: var(--text-muted);
+  padding: var(--sp-2) var(--sp-3);
+  border-left: 2px solid var(--accent);
+  background: var(--bg-sunk);
+  border-radius: 0 var(--r-sm) var(--r-sm) 0;
+}
+.objpanel__hint-btn {
+  justify-self: start;
+}
+.objpanel__hint-done {
+  font-size: 0.8rem;
+  color: var(--text-faint);
+  font-style: italic;
+}
+.objpanel__hint-note {
+  font-size: 0.74rem;
+  color: var(--text-faint);
+}
+
+.objpanel__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-4);
+  padding-top: var(--sp-4);
+  border-top: 1px solid var(--border);
+}
+.objpanel__links a {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-1);
+  font-size: 0.84rem;
+}

@@ -1,0 +1,9 @@
+.starrating {
+  display: inline-flex;
+  gap: 3px;
+  color: var(--text-faint);
+}
+.starrating__star.is-filled {
+  color: var(--brass);
+  filter: drop-shadow(0 0 4px rgba(224, 164, 88, 0.4));
+}

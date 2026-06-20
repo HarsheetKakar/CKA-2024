@@ -1,0 +1,186 @@
+import { lazy } from 'react';
+import type { DayMeta } from '../engine/types';
+
+const REPO = 'https://github.com/piyushsachdeva/CKA-2024/blob/main/Resources';
+
+/**
+ * Central, eagerly-indexed day metadata. Components are lazily imported so each
+ * day code-splits. Heavy puzzle content/answers live in src/data/dayNN.ts.
+ */
+export const days: DayMeta[] = [
+  {
+    id: 1,
+    slug: 'day01',
+    title: 'Docker Fundamentals',
+    codename: 'Sorting Yard',
+    topic: 'Containers vs VMs · Docker architecture',
+    objective:
+      'Sort each cargo crate onto the Container deck or the Virtual Machine deck, then match every Docker architecture term to the role it plays.',
+    hints: [
+      'Containers share the host OS kernel; virtual machines each ship a full guest OS.',
+      'Lightweight, seconds-to-start, isolated by namespaces/cgroups → container. Heavyweight, boots like a computer, isolated by a hypervisor → VM.',
+      'The daemon builds and runs containers; the client just sends it commands; the registry stores images.',
+    ],
+    readmeUrl: `${REPO}/Day01/README.md`,
+    taskUrl: `${REPO}/Day01/task.md`,
+    component: lazy(() => import('./day01/Day01')),
+  },
+  {
+    id: 2,
+    slug: 'day02',
+    title: 'Dockerize an Application',
+    codename: 'Dockerfile Assembly Line',
+    topic: 'Dockerfile instructions · build & run',
+    objective:
+      'Reorder the Dockerfile instructions into a valid build sequence, then fill the missing tokens in the build and run commands.',
+    hints: [
+      'A Dockerfile always begins with FROM — you cannot build on top of nothing.',
+      'Set the working directory and copy the source in before you install dependencies.',
+      'docker build needs the build context (the current directory), and -p maps host:container ports.',
+    ],
+    readmeUrl: `${REPO}/Day02/readme.md`,
+    taskUrl: `${REPO}/Day02/task.md`,
+    component: lazy(() => import('./day02/Day02')),
+  },
+  {
+    id: 3,
+    slug: 'day03',
+    title: 'Multi-Stage Builds',
+    codename: 'Two-Stage Refinery',
+    topic: 'Named stages · COPY --from · small images',
+    objective:
+      'Assign each instruction to the Builder or Shipping stage, then decide which artifacts get shipped and which are left behind to keep the final image small.',
+    hints: [
+      'The builder stage compiles the app; the shipping stage only serves the finished result.',
+      'COPY --from=installer pulls just the build output across stage boundaries.',
+      'Leave node_modules and source behind — ship only the built output.',
+    ],
+    readmeUrl: `${REPO}/Day03/readme.md`,
+    taskUrl: `${REPO}/Day03/task.md`,
+    component: lazy(() => import('./day03/Day03')),
+  },
+  {
+    id: 4,
+    slug: 'day04',
+    title: 'Why Kubernetes?',
+    codename: 'Outage Response',
+    topic: 'Orchestration capabilities',
+    objective:
+      'Incident cards arrive at the harbour-master console. For each one, choose the orchestration capability that resolves it before harbour stability runs out.',
+    hints: [
+      'A crashed workload restarting on its own is self-healing.',
+      'A traffic spike calls for horizontal scaling; a bad release calls for a rollback.',
+      'When instance addresses keep changing, stable discovery and load-balancing solve it.',
+    ],
+    readmeUrl: `${REPO}/Day04/readme.md`,
+    taskUrl: `${REPO}/Day04/task.md`,
+    component: lazy(() => import('./day04/Day04')),
+  },
+  {
+    id: 5,
+    slug: 'day05',
+    title: 'Kubernetes Architecture',
+    codename: 'Build the Bridge',
+    topic: 'Control plane · worker node components',
+    objective:
+      'Place each component on the Control-Plane bridge or the Worker deck, then order the request flow that fires when you run kubectl apply.',
+    hints: [
+      'etcd, the API server, the scheduler and the controller-manager run on the control plane.',
+      'kubelet, kube-proxy and the container runtime live on every worker node.',
+      'Everything enters through the API server; the scheduler picks a node; the kubelet runs the pod.',
+    ],
+    readmeUrl: `${REPO}/Day05/readme.md`,
+    taskUrl: `${REPO}/Day05/task.md`,
+    component: lazy(() => import('./day05/Day05')),
+  },
+  {
+    id: 6,
+    slug: 'day06',
+    title: 'Install a Cluster Locally (KIND)',
+    codename: 'Bootstrap the Cluster',
+    topic: 'KIND prerequisites · cluster config',
+    objective:
+      'Order the bootstrap checklist, then complete the kind create command and the node roles in the cluster config.',
+    hints: [
+      'KIND runs Kubernetes in Docker, so Docker must be installed before kind itself.',
+      'You need kubectl to talk to the cluster once it exists.',
+      'A multi-node config has one control-plane role and one or more worker roles.',
+    ],
+    readmeUrl: `${REPO}/Day06/readme.md`,
+    taskUrl: `${REPO}/Day06/task.md`,
+    component: lazy(() => import('./day06/Day06')),
+  },
+  {
+    id: 7,
+    slug: 'day07',
+    title: 'Pods',
+    codename: 'Manifest Builder',
+    topic: 'Pod manifest anatomy',
+    objective:
+      'Assemble a valid Pod manifest from fragment tiles. Malformed or wrong-kind tiles are rejected — place and indent only the keys a Pod really needs.',
+    hints: [
+      'A Pod manifest uses apiVersion: v1 and kind: Pod (capital P).',
+      'metadata holds the name and labels; spec holds the containers list.',
+      'Each container needs a name, an image, and its containerPort under ports.',
+    ],
+    readmeUrl: `${REPO}/Day07/readme.md`,
+    taskUrl: `${REPO}/Day07/task.md`,
+    component: lazy(() => import('./day07/Day07')),
+  },
+  {
+    id: 8,
+    slug: 'day08',
+    title: 'ReplicaSets & Deployments',
+    codename: 'Desired State',
+    topic: 'Reconciliation · rolling updates',
+    objective:
+      'Set the desired replica count and watch the controller converge. Sink a pod and confirm it heals, then drive a rolling update from v1 to v2 without an outage.',
+    hints: [
+      'The controller continuously works to make the actual replica count match the desired count.',
+      'Delete a pod and the ReplicaSet recreates one to hold desired state.',
+      'A rolling update surges a new pod up and takes an old one down — one at a time keeps you available.',
+    ],
+    readmeUrl: `${REPO}/Day08/readme.md`,
+    taskUrl: `${REPO}/Day08/task.md`,
+    component: lazy(() => import('./day08/Day08')),
+  },
+  {
+    id: 9,
+    slug: 'day09',
+    title: 'Services',
+    codename: 'Wire the Traffic',
+    topic: 'Service types · label selectors',
+    objective:
+      'Wire each Service to the pods whose labels match its selector, then choose the right Service type to satisfy each access scenario.',
+    hints: [
+      'A Service binds to pods by matching its selector against pod labels — wrong labels reject the cable.',
+      'ClusterIP is internal-only; NodePort exposes a port on each node; LoadBalancer gives a public address.',
+      'ExternalName maps a Service to an external DNS name rather than to pods.',
+    ],
+    readmeUrl: `${REPO}/Day09/readme.md`,
+    taskUrl: `${REPO}/Day09/task.md`,
+    component: lazy(() => import('./day09/Day09')),
+  },
+  {
+    id: 10,
+    slug: 'day10',
+    title: 'Namespaces',
+    codename: 'Harbor Partition',
+    topic: 'Isolation · cross-namespace DNS',
+    objective:
+      'Sort resources into the correct namespace harbours, then assemble the DNS name a pod uses to reach a Service in another namespace.',
+    hints: [
+      'System components live in kube-system; your app workloads go in dev or prod.',
+      'Within the same namespace a Service is reachable by its short name alone.',
+      'Across namespaces the form is service.namespace.svc.cluster.local.',
+    ],
+    readmeUrl: `${REPO}/Day10/readme.md`,
+    taskUrl: `${REPO}/Day10/task.md`,
+    component: lazy(() => import('./day10/Day10')),
+  },
+];
+
+export const dayBySlug = (slug: string): DayMeta | undefined =>
+  days.find((d) => d.slug === slug);
+
+export const dayById = (id: number): DayMeta | undefined => days.find((d) => d.id === id);

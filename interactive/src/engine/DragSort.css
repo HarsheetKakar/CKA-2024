@@ -1,0 +1,162 @@
+.dragsort {
+  display: grid;
+  gap: var(--sp-4);
+}
+
+.dragsort-buckets {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--sp-4);
+}
+
+.dragsort-bucket {
+  background: var(--bg-sunk);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: var(--sp-3);
+  min-height: 160px;
+  transition:
+    border-color var(--dur-fast) var(--ease-out),
+    box-shadow var(--dur-fast) var(--ease-out),
+    background var(--dur-fast) var(--ease-out);
+}
+.dragsort-bucket.is-over {
+  border-color: var(--active);
+  box-shadow: var(--glow-signal);
+  background: rgba(61, 204, 199, 0.05);
+}
+.dragsort-bucket__head h3 {
+  font-size: 1rem;
+}
+.dragsort-bucket__head p {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+.dragsort-bucket__slots {
+  display: grid;
+  gap: var(--sp-2);
+  margin-top: var(--sp-3);
+}
+.dragsort-bucket__empty,
+.dragsort-pool__empty {
+  font-size: 0.8rem;
+  color: var(--text-faint);
+  font-style: italic;
+  padding: var(--sp-2);
+}
+
+.dragsort-pool {
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--r-lg);
+  padding: var(--sp-3);
+  transition: border-color var(--dur-fast) var(--ease-out);
+}
+.dragsort-pool.is-over {
+  border-color: var(--active);
+}
+.dragsort-pool__head h3 {
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+}
+.dragsort-pool__slots {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  margin-top: var(--sp-3);
+}
+
+.dragsort-card {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-2);
+  background: var(--surface-raised);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-md);
+  padding: var(--sp-2);
+  box-shadow: var(--shadow-1);
+  transition:
+    border-color var(--dur-fast) var(--ease-out),
+    box-shadow var(--dur-fast) var(--ease-out),
+    transform var(--dur-fast) var(--ease-snap);
+}
+.dragsort-card.is-dragging {
+  opacity: 0.35;
+}
+.dragsort-card.is-invalid {
+  border-color: var(--danger);
+  box-shadow: 0 0 0 1px var(--danger-dim);
+}
+.dragsort-card.is-locked {
+  border-color: var(--success);
+  box-shadow: 0 0 0 1px var(--signal-dim);
+}
+.dragsort-card.is-overlay {
+  align-items: center;
+  cursor: grabbing;
+  box-shadow: var(--shadow-raised);
+  border-color: var(--accent);
+}
+
+.dragsort-card__grip {
+  border: none;
+  background: transparent;
+  padding: 2px;
+  cursor: grab;
+  touch-action: none;
+}
+.dragsort-card__grip:active {
+  cursor: grabbing;
+}
+.dragsort-card__crate {
+  display: block;
+  width: 22px;
+  height: 22px;
+  border-radius: 3px;
+  background: linear-gradient(135deg, var(--brass) 0%, var(--brass-dim) 100%);
+  box-shadow:
+    inset 0 0 0 2px rgba(0, 0, 0, 0.25),
+    inset 0 0 0 5px rgba(224, 164, 88, 0.35);
+}
+.dragsort-card__body {
+  display: grid;
+  gap: var(--sp-1);
+  flex: 1;
+}
+.dragsort-card__label {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+.dragsort-card__detail {
+  font-size: 0.76rem;
+  color: var(--text-muted);
+}
+.dragsort-card__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-1);
+  margin-top: var(--sp-1);
+}
+.dragsort-chip {
+  font-size: 0.72rem;
+  padding: 2px var(--sp-2);
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-muted);
+  transition:
+    border-color var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out),
+    background var(--dur-fast) var(--ease-out);
+}
+.dragsort-chip:hover {
+  border-color: var(--active);
+  color: var(--text);
+}
+.dragsort-chip.is-active {
+  border-color: var(--active);
+  background: rgba(61, 204, 199, 0.12);
+  color: var(--foam);
+}

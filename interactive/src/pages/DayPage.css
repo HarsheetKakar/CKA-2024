@@ -1,0 +1,98 @@
+.daypage {
+  display: grid;
+  gap: var(--sp-6);
+}
+
+.daypage__head {
+  display: grid;
+  gap: var(--sp-3);
+}
+.daypage__back {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-1);
+  font-size: 0.86rem;
+  color: var(--text-muted);
+  width: fit-content;
+}
+.daypage__back:hover {
+  color: var(--active);
+  text-decoration: none;
+}
+.daypage__daynum {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.daypage__codename {
+  font-size: clamp(1.8rem, 4vw, 2.6rem);
+  color: var(--foam);
+  margin-top: var(--sp-1);
+}
+.daypage__lesson {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+}
+.daypage__topic {
+  color: var(--text-faint);
+}
+
+.daypage__layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  gap: var(--sp-5);
+  align-items: start;
+}
+@media (max-width: 900px) {
+  .daypage__layout {
+    grid-template-columns: 1fr;
+  }
+  .objpanel {
+    position: static;
+  }
+}
+
+.daypage__console {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: var(--sp-5);
+  box-shadow: var(--shadow-2);
+  min-height: 320px;
+}
+@media (max-width: 560px) {
+  .daypage__console {
+    padding: var(--sp-4) var(--sp-3);
+  }
+}
+
+.daypage__loading {
+  display: grid;
+  place-items: center;
+  min-height: 240px;
+  color: var(--text-faint);
+  font-family: var(--font-mono);
+}
+
+.daypage__missing {
+  display: grid;
+  gap: var(--sp-4);
+  place-items: center;
+  text-align: center;
+  padding-top: var(--sp-10);
+}
+.daypage__missing h1 {
+  font-size: 2rem;
+}
+.daypage__locked-badge {
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--bg-sunk);
+  border: 1px solid var(--border);
+  color: var(--text-faint);
+}

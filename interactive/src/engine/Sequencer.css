@@ -1,0 +1,104 @@
+.sequencer {
+  display: grid;
+  gap: var(--sp-2);
+  counter-reset: step;
+}
+
+.sequencer__row {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  background: var(--surface-raised);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-md);
+  padding: var(--sp-2) var(--sp-3);
+  box-shadow: var(--shadow-1);
+}
+.sequencer__row.is-dragging {
+  border-color: var(--accent);
+  box-shadow: var(--shadow-raised);
+  z-index: 2;
+}
+.sequencer__row.is-invalid {
+  border-color: var(--danger);
+  box-shadow: 0 0 0 1px var(--danger-dim);
+}
+.sequencer__row.is-locked {
+  border-color: var(--success);
+  box-shadow: 0 0 0 1px var(--signal-dim);
+}
+
+.sequencer__num {
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--r-sm);
+  background: var(--bg-sunk);
+  border: 1px solid var(--border);
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.sequencer__grip {
+  border: none;
+  background: transparent;
+  color: var(--text-faint);
+  cursor: grab;
+  touch-action: none;
+  padding: 2px;
+  display: grid;
+  place-items: center;
+}
+.sequencer__grip:hover {
+  color: var(--text);
+}
+.sequencer__grip:active {
+  cursor: grabbing;
+}
+
+.sequencer__body {
+  flex: 1;
+  display: grid;
+  gap: 1px;
+  min-width: 0;
+}
+.sequencer__label {
+  font-weight: 600;
+  font-size: 0.9rem;
+  font-family: var(--font-mono);
+}
+.sequencer__detail {
+  font-size: 0.76rem;
+  color: var(--text-muted);
+}
+
+.sequencer__moves {
+  display: flex;
+  gap: var(--sp-1);
+  flex-shrink: 0;
+}
+.sequencer__move {
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  color: var(--text-muted);
+  transition:
+    border-color var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out);
+}
+.sequencer__move:hover:not(:disabled) {
+  border-color: var(--active);
+  color: var(--text);
+}
+.sequencer__move:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}

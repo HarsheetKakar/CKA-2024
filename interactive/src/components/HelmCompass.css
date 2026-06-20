@@ -1,0 +1,38 @@
+.helm {
+  display: block;
+}
+.helm__spoke {
+  stroke: var(--border-strong);
+  stroke-width: 2;
+}
+.helm__ring,
+.helm__ring-inner {
+  stroke: var(--border-strong);
+  stroke-width: 2;
+}
+.helm__seg {
+  fill: var(--hull);
+  stroke: var(--abyss);
+  stroke-width: 1.5;
+  transition: fill var(--dur-slow) var(--ease-out);
+}
+.helm__seg.is-done {
+  fill: var(--brass);
+  filter: drop-shadow(0 0 6px rgba(224, 164, 88, 0.45));
+}
+.helm__hub {
+  fill: var(--hull-raised);
+  stroke: var(--signal);
+  stroke-width: 2;
+}
+.helm__count {
+  fill: var(--foam);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 26px;
+}
+.helm__count-sub {
+  fill: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 9px;
+}
