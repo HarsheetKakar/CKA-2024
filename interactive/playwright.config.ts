@@ -10,6 +10,7 @@ export default defineConfig({
     baseURL: 'http://localhost:4173',
     headless: true,
     screenshot: 'only-on-failure',
+    reducedMotion: 'reduce',
   },
   webServer: {
     command: 'npm run dev -- --port 4173 --strictPort',

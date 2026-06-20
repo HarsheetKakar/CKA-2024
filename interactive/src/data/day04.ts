@@ -73,7 +73,7 @@ export const outageScenarios: OutageScenario[] = [
     scenario: '💀 Node failure',
     prompt:
       'A server (node) in your cluster died, taking all its workloads with it. What saves you?',
-    choices: [capabilities[0], capabilities[1], capabilities[2], capabilities[3]],
+    choices: [capabilities[1], capabilities[2], capabilities[3], capabilities[4]],
     correct: 'cap-reschedule',
   },
 ];

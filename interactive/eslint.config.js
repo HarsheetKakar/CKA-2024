@@ -22,4 +22,11 @@ export default tseslint.config(
       'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
     },
   },
+  {
+    // Playwright e2e specs keep skip-stubs and helper scaffolding; relax unused checks.
+    files: ['e2e/**/*.ts'],
+    rules: {
+      '@typescript-eslint/no-unused-vars': 'off',
+    },
+  },
 );
