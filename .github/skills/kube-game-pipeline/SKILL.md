@@ -31,15 +31,19 @@ and must satisfy the existing `DayGameProps` engine contract (`onComplete(stars)
    e2e all pass. Capture a baseline before you change anything.
 6. **Respect the codebase:** match the existing engine contract, design tokens, theme, and
    conventions. Make surgical changes; touch only the target day plus its tests/registry.
-7. **Confirm before destructive or shared actions** (replacing an existing day, committing,
-   pushing). Never push to the upstream `origin` remote without explicit confirmation.
+7. **Confirm before destructive or shared actions** (committing, pushing). Never push to the
+   upstream `origin` remote without explicit confirmation.
+8. **Invoking this skill always means a full replacement.** If a game/module already exists
+   for the target day, the user wants it removed entirely and rebuilt from scratch — do not
+   ask whether to replace it. Note that an existing module will be overwritten and proceed.
 
 ## Stage 0 — Frame the run
 
 - Determine the **target day and topic**. If the user didn't name one, ask (one focused
   question). State explicitly: "Pipeline target: **Day NN — <topic>**."
-- Note whether a game/module already exists for that day (it may need replacing) and warn
-  the user if so.
+- Note whether a game/module already exists for that day. Invoking this skill always means a
+  **full replacement**: if a module exists, it will be removed and rebuilt from scratch —
+  state that it will be overwritten and proceed without asking for permission to replace.
 - Capture a **green baseline**: from `interactive/`, run `npm run lint`, `npm run test`,
   `npm run build`. Record the result so regressions are detectable later.
 

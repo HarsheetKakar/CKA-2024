@@ -21,7 +21,7 @@ All core functionality tests pass successfully. No bugs discovered during end-to
 | 5 | Binding Magistrate | ✓ FULLY PLAYED | Scheduler binding puzzle (resource fit + nodeSelector + taints/tolerations) → certify the bind→run component roles |
 | 6 | Bootstrap the Cluster | ✓ RENDERS | Sequencer + Fill-in-the-blanks; render test passes, sequencer logic complex |
 | 7 | Manifest Builder | ✓ RENDERS | YamlBuilder (YAML fragment assembly with drag-and-drop); render test passes, drag-drop logic complex |
-| 8 | Desired State | ✓ RENDERS | Custom simulator (slider, reconcile, rolling updates); render test passes, simulator logic skipped |
+| 8 | Selector Starlock | ✓ FULLY PLAYED | Selector forge (apiVersion + matchLabels lock the ReplicaSet onto its own pods) → rollout/rollback sequencer; full playthrough in remaining-plays.spec.ts |
 | 9 | Wire the Traffic | ✓ RENDERS | ConnectionBoard (service-to-pods wiring) + Service Type Quiz; render test passes, interaction logic skipped |
 | 10 | Harbor Partition | ✓ RENDERS | Namespace DragSort + DNS Sequencer (2 scenarios); render test passes, multi-stage logic skipped |
 
@@ -57,7 +57,7 @@ The following tests are marked `test.skip()` because they require complex multi-
 3. **Day 5: DragSort + Sequencer** — Combines two complex engines
 4. **Day 6: Sequencer + Fill-blanks** — Same as Day 2
 5. **Day 7: YamlBuilder YAML assembly** — Drag-and-drop tile insertion + indentation is complex
-6. **Day 8: Fleet Commander simulator** — Custom logic with reconciliation button and rolling updates; intentionally skipped per spec
+6. **Day 8: Selector Starlock** — Selector forge (apiVersion + matchLabels) then rollout/rollback sequencer; fully played in remaining-plays.spec.ts
 7. **Day 9: ConnectionBoard + Quiz** — Requires clicking source then target; wiring state is stateful
 8. **Day 10: Namespace DragSort + DNS Sequencer** — Multi-stage with two separate sequencer scenarios
 

@@ -131,30 +131,33 @@ test('Day 7 (Manifest Builder) is fully playable to completion', async ({ page }
   await expect(page.locator('.debrief')).toContainText('Voyage complete');
 });
 
-test('Day 8 (Desired State) simulator is fully playable to completion', async ({ page }) => {
+test('Day 8 (Selector Starlock) is fully playable to completion', async ({ page }) => {
   await unlockAll(page);
   await page.goto('/#/day/day08');
-  await expect(page.getByRole('heading', { name: 'Desired State' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Selector Starlock' })).toBeVisible();
 
-  // Stage 1 — dial desired to 3, then reconcile.
-  const dial = page.locator('#desired-dial');
-  await dial.focus();
-  for (let k = 0; k < 3; k++) await dial.press('ArrowRight');
-  await page.getByRole('button', { name: 'Reconcile' }).click();
-  await expect(page.locator('.day08__pod')).toHaveCount(3);
-  await primaryCheck(page).click();
+  // Stage 1 — configure the Deployment manifest, then a precise selector.
+  await expect(page.locator('.day08__pod')).toHaveCount(7);
+  await page.locator('#day08-apiVersion').selectOption('apps/v1');
+  await page.locator('#day08-kind').selectOption('Deployment');
+  await page.locator('#day08-replicas').selectOption('4');
+  await page.locator('#day08-image').selectOption('nginx:1.23.4');
+  await page.locator('#day08-containerPort').selectOption('80');
+  // Only {app:nginx, track:stable} owns exactly the 4 nginx pods and no look-alikes.
+  await page.getByRole('button', { name: 'app: nginx', exact: true }).click();
+  await page.getByRole('button', { name: 'track: stable', exact: true }).click();
+  await primaryCheck(page).click(); // "Apply"
 
-  // Stage 2 — select correct label selectors, run rolling update, submit.
-  await expect(page.getByRole('button', { name: 'Start Rolling Update' })).toBeVisible();
-  await page.locator('.day08__selector-option', { hasText: 'app: nginx' }).click();
-  await page.locator('.day08__selector-option', { hasText: 'env: demo' }).click();
-  await page.getByRole('button', { name: 'Start Rolling Update' }).click();
-  // Wait for the controller to mark the rollout complete (one tick after the last v2 flip).
-  await expect(page.getByText('Rolling update finished. Check to complete.')).toBeVisible({
-    timeout: 10_000,
-  });
-  await expect(page.locator('.day08__pod--v2')).toHaveCount(3);
-  await primaryCheck(page).click();
+  // Stage 2 — the ReplicaSet locked onto its pods; order the rollout (surge before drain).
+  await expect(page.getByRole('button', { name: 'Submit' })).toBeVisible();
+  await setSequence(page, [
+    'Update the pod template image to v2',
+    'Surge up a new v2 pod',
+    'Drain an old v1 pod',
+    'Rollout complete: all replicas on v2',
+    'Roll back to revision 1',
+  ]);
+  await primaryCheck(page).click(); // "Submit"
 
   await expect(page.locator('.debrief')).toContainText('Voyage complete');
 });
