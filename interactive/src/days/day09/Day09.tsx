@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { CheckBar } from '../../components/CheckBar';
 import { StageStepper } from '../../components/StageStepper';
+import { unlockAllDays } from '../../store/progress';
 import { ConnectionBoard, type Connection } from '../../engine/ConnectionBoard';
 import { starsFromMistakes, type DayGameProps } from '../../engine/types';
 import {
@@ -124,6 +125,7 @@ export default function Day09({ onComplete, onMistakes }: DayGameProps) {
         stages={['Wire the Service', 'Service Type Quiz']}
         current={stage}
         done={stage > 0 ? [0] : []}
+        onSelect={unlockAllDays ? setStage : undefined}
       />
 
       {stage === 0 ? (

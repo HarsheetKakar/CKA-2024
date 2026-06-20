@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { CheckBar } from '../../components/CheckBar';
 import { StageStepper } from '../../components/StageStepper';
+import { unlockAllDays } from '../../store/progress';
 import { DragSort } from '../../engine/DragSort';
 import { Sequencer } from '../../engine/Sequencer';
 import { shuffle } from '../../engine/shuffle';
@@ -100,6 +101,7 @@ export default function Day05({ onComplete, onMistakes }: DayGameProps) {
         stages={['Assign components', 'Trace the flow']}
         current={stage}
         done={stage > 0 ? [0] : []}
+        onSelect={unlockAllDays ? setStage : undefined}
       />
 
       {stage === 0 ? (

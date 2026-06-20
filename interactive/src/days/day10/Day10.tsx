@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { CheckBar } from '../../components/CheckBar';
 import { StageStepper } from '../../components/StageStepper';
+import { unlockAllDays } from '../../store/progress';
 import { DragSort } from '../../engine/DragSort';
 import { shuffle } from '../../engine/shuffle';
 import { starsFromMistakes, type DayGameProps } from '../../engine/types';
@@ -125,6 +126,7 @@ export default function Day10({ onComplete, onMistakes }: DayGameProps) {
         stages={['Partition Resources', 'Assemble DNS Names']}
         current={stage}
         done={stage > 0 ? [0] : []}
+        onSelect={unlockAllDays ? setStage : undefined}
       />
 
       {stage === 0 ? (

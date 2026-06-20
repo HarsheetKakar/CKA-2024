@@ -250,39 +250,38 @@ test('Day 3: Initial render — no premature completion overlay', async ({ page 
   const errorCapture = await captureErrors(page);
 
   await page.goto('/#/day/day03');
-  await expect(page.getByRole('heading', { name: 'Two-Stage Refinery' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Dockerfile Surgery Circus' })).toBeVisible();
   await expect(page.locator('.debrief')).toHaveCount(0);
-  await expect(page.getByRole('button', { name: /Check|Submit/ })).toBeVisible();
+  await expect(page.getByRole('button', { name: /Check|Submit|Close up/ })).toBeVisible();
 
   expect(errorCapture.pageErrors.length).toBe(0);
 });
 
-test('Day 3: Fully playable — Two DragSort stages to completion', async ({ page }) => {
+test('Day 3: Fully playable — Dockerfile Surgery Circus to discharge', async ({ page }) => {
   await seedProgress(page);
   await page.goto('/#/day/day03');
 
-  // Stage 1 — Assign instructions to Builder/Shipping
-  const builderStage = 'Builder stage';
-  const shippingStage = 'Shipping stage';
+  // Click each correct surgical tool once, in dependency-safe order, to refactor
+  // the single-stage patient into a lean multi-stage build with all vitals green.
+  const surgery = [
+    'Split into two stages',
+    'Name the builder AS installer',
+    'Slim the builder base',
+    'Copy package*.json + npm ci before source',
+    'Excise the apt build toolchain',
+    'Remove dev dependencies',
+    'Remove the in-image RUN npm test',
+    'Set ENV NODE_ENV=production',
+    'Graft slim runtime base',
+    'Transplant /app/build via COPY --from=installer',
+    'Fix runtime entry',
+  ];
 
-  await assignCrate(page, 'FROM node:18-alpine AS installer', builderStage);
-  await assignCrate(page, 'WORKDIR /app', builderStage);
-  await assignCrate(page, 'COPY package*.json ./', builderStage);
-  await assignCrate(page, 'RUN npm install', builderStage);
-  await assignCrate(page, 'COPY . .', builderStage);
-  await assignCrate(page, 'RUN npm run build', builderStage);
-  await assignCrate(page, 'FROM nginx:latest AS deployer', shippingStage);
-  await assignCrate(page, 'COPY --from=installer /app/build /usr/share/nginx/html', shippingStage);
-  await page.getByRole('button', { name: 'Check' }).click();
+  for (const tool of surgery) {
+    await page.getByRole('button', { name: tool, exact: false }).click();
+  }
 
-  // Stage 2 — Assign artifacts to Ship/Leave behind
-  const ship = 'Ship it';
-  const leave = 'Leave behind';
-
-  await assignCrate(page, 'node_modules', leave);
-  await assignCrate(page, 'Source code (src/)', leave);
-  await assignCrate(page, '/app/build output', ship);
-  await page.getByRole('button', { name: 'Submit' }).click();
+  await page.getByRole('button', { name: 'Close up' }).click();
 
   // Completion
   await expect(page.locator('.debrief')).toBeVisible();

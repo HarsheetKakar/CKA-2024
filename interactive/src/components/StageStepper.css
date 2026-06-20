@@ -4,6 +4,9 @@
   gap: var(--sp-2);
   margin-bottom: var(--sp-5);
 }
+.stepper li {
+  display: contents;
+}
 .stepper__item {
   display: inline-flex;
   align-items: center;
@@ -13,6 +16,20 @@
   border-radius: 999px;
   font-size: 0.82rem;
   color: var(--text-faint);
+}
+button.stepper__item {
+  background: none;
+  font-family: inherit;
+}
+.stepper__item.is-clickable {
+  cursor: pointer;
+  transition:
+    border-color var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out);
+}
+.stepper__item.is-clickable:hover {
+  border-color: var(--accent);
+  color: var(--text);
 }
 .stepper__item.is-current {
   border-color: var(--accent);

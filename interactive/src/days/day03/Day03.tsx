@@ -1,188 +1,271 @@
 import { useMemo, useState } from 'react';
+import { CheckCircle2, Circle } from 'lucide-react';
 import { CheckBar } from '../../components/CheckBar';
-import { StageStepper } from '../../components/StageStepper';
-import { DragSort } from '../../engine/DragSort';
 import { starsFromMistakes, type DayGameProps } from '../../engine/types';
 import {
-  stageInstructions,
-  stageBuckets,
-  correctStageAssignments,
-  artifacts,
-  artifactBuckets,
-  correctArtifactAssignments,
+  initialState,
+  tools,
+  computeImageSize,
+  evaluateVitals,
+  isDischargeable,
+  renderDockerfile,
+  initialImageSizeMb,
+  targetImageSizeMb,
+  targetDockerfile,
+  type SurgeryState,
+  type SurgicalTool,
+  type ToolCategory,
 } from '../../data/day03';
 import './Day03.css';
 
 type Tone = 'idle' | 'error' | 'success';
 
-export default function Day03({ onComplete, onMistakes }: DayGameProps) {
-  const instructionItems = useMemo(() => stageInstructions.items, []);
-  const bucketItems = useMemo(() => stageBuckets.items, []);
-  const artifactItems = useMemo(() => artifacts.items, []);
-  const artifactBucketItems = useMemo(() => artifactBuckets.items, []);
+const CATEGORY_LABELS: Record<ToolCategory, string> = {
+  stages: 'Stage structure',
+  builder: 'Builder hygiene',
+  runtime: 'Runtime stage',
+};
 
-  const [stage, setStage] = useState(0);
+const CATEGORY_ORDER: ToolCategory[] = ['stages', 'builder', 'runtime'];
+
+const CRUFT_PATTERNS = [
+  'apt-get',
+  '--save-dev',
+  'npm test',
+  'NODE_ENV=development',
+  'EXPOSE 3000',
+  '"npm","start"',
+  'node_modules',
+];
+
+function isCruftLine(text: string, stage: 'builder' | 'runtime'): boolean {
+  if (CRUFT_PATTERNS.some((p) => text.includes(p))) return true;
+  if (text === 'FROM node:18 AS deployer') return true;
+  if (stage === 'runtime' && text === 'COPY . .') return true;
+  return false;
+}
+
+export default function Day03({ onComplete, onMistakes, reducedMotion }: DayGameProps) {
+  const [state, setState] = useState<SurgeryState>(initialState);
   const [mistakes, setMistakes] = useState(0);
-
-  // Stage 1 — assign instructions to builder/shipping
-  const [stageAssignments, setStageAssignments] = useState<Record<string, string | null>>({});
-  const [stageInvalid, setStageInvalid] = useState<Set<string>>(new Set());
-  const stageLocked = stage > 0;
-
-  // Stage 2 — assign artifacts to ship/leave
-  const [artifactAssignments, setArtifactAssignments] = useState<Record<string, string | null>>({});
-  const [artifactInvalid, setArtifactInvalid] = useState<Set<string>>(new Set());
-
   const [tone, setTone] = useState<Tone>('idle');
   const [message, setMessage] = useState('');
+  const [discharged, setDischarged] = useState(false);
 
-  // Calculate image size ratio: fully correct = 100% reduction, missing = less reduction
-  const shippedCount = artifactItems.filter((a) => artifactAssignments[a.id] === 'ship').length;
-  const correctShipped = artifactItems.filter(
-    (a) => correctArtifactAssignments[a.id] === 'ship',
-  ).length;
-  const sizePercent =
-    correctShipped > 0 ? Math.max(30, 100 - (shippedCount === correctShipped ? 70 : 35)) : 100;
+  const size = useMemo(() => computeImageSize(state), [state]);
+  const vitals = useMemo(() => evaluateVitals(state), [state]);
+  const dockerfile = useMemo(() => renderDockerfile(state), [state]);
 
-  function bump(count: number) {
-    setMistakes((m) => {
-      const next = m + count;
-      onMistakes?.(next);
-      return next;
-    });
+  const underTarget = size < targetImageSizeMb;
+  const meterPercent = Math.max(4, Math.min(100, Math.round((size / initialImageSizeMb) * 100)));
+
+  function applyTool(tool: SurgicalTool) {
+    if (discharged || !tool.enabled(state)) return;
+    const turningOn = !tool.active(state);
+    const next = tool.apply(state);
+
+    if (tool.kind === 'malpractice') {
+      if (turningOn) {
+        setMistakes((m) => {
+          const v = m + 1;
+          onMistakes?.(v);
+          return v;
+        });
+        setTone('error');
+        setMessage(`🤡 HONK! Malpractice: ${tool.hint.replace('MALPRACTICE: ', '')}`);
+      } else {
+        setTone('idle');
+        setMessage('Cruft removed from the runtime — good catch.');
+      }
+    } else {
+      setTone('idle');
+      setMessage(
+        turningOn
+          ? 'Applied — watch the size meter & Dockerfile. Click the card again to undo.'
+          : 'Reverted that change.',
+      );
+    }
+    setState(next);
   }
 
-  function checkStages() {
-    const unassigned = instructionItems.filter((i) => !stageAssignments[i.id]);
-    if (unassigned.length > 0) {
+  function check() {
+    if (!state.stagesSplit) {
       setTone('error');
-      setMessage(`Assign all instructions first — ${unassigned.length} still unplaced.`);
+      setMessage('The patient is still a single stage. Split it so build bloat can be left behind.');
       return;
     }
-
-    const wrong = instructionItems.filter(
-      (i) => stageAssignments[i.id] !== correctStageAssignments[i.id],
-    );
-    if (wrong.length > 0) {
-      setStageInvalid(new Set(wrong.map((i) => i.id)));
-      bump(wrong.length);
+    const failing = vitals.filter((v) => !v.ok);
+    if (failing.length > 0) {
       setTone('error');
-      setMessage(`${wrong.length} instruction(s) in the wrong stage. Reconsider and try again.`);
+      setMessage(
+        `Not ready for discharge — ${failing.length} vital(s) still red. Keep operating.`,
+      );
       return;
     }
-
-    setStageInvalid(new Set());
+    if (!isDischargeable(state)) {
+      setTone('error');
+      setMessage(
+        `Vitals green but the image is still ${size} MB (target < ${targetImageSizeMb} MB). Trim the runtime.`,
+      );
+      return;
+    }
     setTone('success');
-    setMessage('Stages are correct! Now choose which artifacts to ship.');
-    setStage(1);
-  }
-
-  function checkArtifacts() {
-    const unassigned = artifactItems.filter((a) => !artifactAssignments[a.id]);
-    if (unassigned.length > 0) {
-      setTone('error');
-      setMessage(`Decide on all artifacts first — ${unassigned.length} still unplaced.`);
-      return;
-    }
-
-    const wrong = artifactItems.filter(
-      (a) => artifactAssignments[a.id] !== correctArtifactAssignments[a.id],
+    setMessage(
+      `Discharged! You shrank the patient from ${initialImageSizeMb} MB to ${size} MB. 🎉`,
     );
-    if (wrong.length > 0) {
-      setArtifactInvalid(new Set(wrong.map((a) => a.id)));
-      bump(wrong.length);
-      setTone('error');
-      setMessage(`${wrong.length} artifact(s) in the wrong bin. Reconsider and try again.`);
-      return;
-    }
-
-    setArtifactInvalid(new Set());
-    setTone('success');
-    setMessage('Perfect! Image is optimized for shipping.');
-    const finalMistakes = mistakes + 0;
-    onComplete(starsFromMistakes(finalMistakes, 2));
+    setDischarged(true);
+    onComplete(starsFromMistakes(mistakes, 1));
   }
 
   function reset() {
-    if (stage === 0) {
-      setStageAssignments({});
-      setStageInvalid(new Set());
-    } else {
-      setArtifactAssignments({});
-      setArtifactInvalid(new Set());
-    }
+    setState(initialState);
+    setMistakes(0);
+    onMistakes?.(0);
     setTone('idle');
     setMessage('');
+    setDischarged(false);
   }
 
-  return (
-    <div className="day03">
-      <StageStepper
-        stages={['Split the stages', 'Choose artifacts']}
-        current={stage}
-        done={stage > 0 ? [0] : []}
-      />
+  const toolsByCategory = (cat: ToolCategory) => tools.filter((t) => t.category === cat);
 
-      {stage === 0 ? (
-        <>
-          <p className="day03__lede">
-            A multi-stage Dockerfile uses multiple <code>FROM</code> instructions. Assign each
-            instruction to the <strong>Builder stage</strong> (for compilation) or the{' '}
-            <strong>Shipping stage</strong> (for the final image).
-          </p>
-          <DragSort
-            items={instructionItems}
-            buckets={bucketItems}
-            assignments={stageAssignments}
-            onAssign={(id, bucket) => setStageAssignments((a) => ({ ...a, [id]: bucket }))}
-            invalidIds={stageInvalid}
-            lockedIds={stageLocked ? new Set(instructionItems.map((i) => i.id)) : new Set()}
-            poolLabel="Instructions to assign"
-          />
-          <CheckBar onCheck={checkStages} onReset={reset} tone={tone} message={message} />
-        </>
-      ) : (
-        <>
-          <p className="day03__lede">
-            The builder stage creates the application; the shipping stage is the final image. Decide
-            which artifacts should be shipped in the final image and which should be left behind to
-            save space.
-          </p>
-          <div className="day03__size-meter">
-            <div className="day03__size-label">
-              <span>Final image size:</span>
-              <span className="day03__size-percent">{sizePercent}%</span>
-            </div>
-            <div className="day03__size-bar">
-              <div
-                className="day03__size-fill"
-                style={{ width: `${sizePercent}%` }}
-                role="progressbar"
-                aria-valuenow={sizePercent}
-                aria-valuemin={0}
-                aria-valuemax={100}
-                aria-label={`Image size reduced to ${sizePercent}%`}
-              ></div>
-            </div>
+  return (
+    <div className={`day03${reducedMotion ? ' day03--reduced' : ''}`}>
+      <p className="day03__lede">
+        🎪 <strong>Surgery Circus:</strong> refactor the bloated single-stage patient (
+        <strong>{initialImageSizeMb} MB</strong>) into a lean <strong>multi-stage build</strong> —
+        all five vitals green and the final image under <strong>{targetImageSizeMb} MB</strong>.
+        Every tool is a <strong>toggle</strong>: click to apply and watch the size meter &amp;
+        Dockerfile react, then click again to undo. Avoid the red <strong>malpractice</strong>{' '}
+        tools.
+      </p>
+
+      <div className="day03__hud">
+        <div className="day03__meter">
+          <div className="day03__meter-head">
+            <span>Final image size</span>
+            <span
+              className={`day03__meter-value${underTarget ? ' is-under' : ' is-over'}`}
+              aria-live="polite"
+            >
+              {size} MB
+            </span>
           </div>
-          <DragSort
-            items={artifactItems}
-            buckets={artifactBucketItems}
-            assignments={artifactAssignments}
-            onAssign={(id, bucket) => setArtifactAssignments((a) => ({ ...a, [id]: bucket }))}
-            invalidIds={artifactInvalid}
-            lockedIds={new Set()}
-            poolLabel="Artifacts to assign"
-          />
-          <CheckBar
-            onCheck={checkArtifacts}
-            onReset={reset}
-            checkLabel="Submit"
-            tone={tone}
-            message={message}
-          />
-        </>
-      )}
+          <div className="day03__meter-bar">
+            <div
+              className={`day03__meter-fill${underTarget ? ' is-under' : ' is-over'}`}
+              style={{ width: `${meterPercent}%` }}
+              role="progressbar"
+              aria-valuenow={size}
+              aria-valuemin={0}
+              aria-valuemax={initialImageSizeMb}
+              aria-label={`Final image size ${size} megabytes`}
+            />
+            <span
+              className="day03__meter-target"
+              style={{ left: `${(targetImageSizeMb / initialImageSizeMb) * 100}%` }}
+              aria-hidden="true"
+            />
+          </div>
+          <p className="day03__meter-caption">
+            Target: &lt; {targetImageSizeMb} MB · Mistakes: {mistakes}
+          </p>
+        </div>
+
+        <ul className="day03__vital-list" aria-label="Patient vitals">
+          {vitals.map((v) => (
+            <li
+              key={v.id}
+              className={`day03__vital${v.ok ? ' is-ok' : ' is-pending'}`}
+              title={v.label}
+            >
+              {v.ok ? (
+                <CheckCircle2 size={15} aria-hidden="true" />
+              ) : (
+                <Circle size={15} aria-hidden="true" />
+              )}
+              <span>{v.short}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <div className="day03__theatre">
+        <div className="day03__palette" aria-label="Surgical tools">
+          {CATEGORY_ORDER.map((cat) => (
+            <div key={cat} className="day03__tool-group">
+              <h4 className="day03__tool-group-title">{CATEGORY_LABELS[cat]}</h4>
+              <div className="day03__tool-grid">
+                {toolsByCategory(cat).map((tool) => {
+                  const enabled = tool.enabled(state) && !discharged;
+                  const active = tool.active?.(state) ?? false;
+                  return (
+                    <button
+                      key={tool.id}
+                      type="button"
+                      className={`day03__tool day03__tool--${tool.kind}${active ? ' is-active' : ''}`}
+                      onClick={() => applyTool(tool)}
+                      disabled={!enabled}
+                      title={tool.hint}
+                    >
+                      <span className="day03__tool-label">
+                        {active ? `Undo: ${tool.label}` : tool.label}
+                      </span>
+                      <span className="day03__tool-hint">{tool.hint}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <section className="day03__patient" aria-label="Dockerfile patient">
+          <div className="day03__stage">
+            <h3 className="day03__stage-title">
+              {state.stagesSplit ? 'Builder stage' : 'Single stage (the patient)'}
+            </h3>
+            <pre className="day03__code">
+              {dockerfile.builder.map((line, i) => (
+                <code
+                  key={`b-${i}`}
+                  className={`day03__line${isCruftLine(line, 'builder') ? ' day03__line--cruft' : ''}`}
+                >
+                  {line}
+                </code>
+              ))}
+            </pre>
+          </div>
+
+          {dockerfile.runtime && (
+            <div className="day03__stage day03__stage--runtime">
+              <h3 className="day03__stage-title">Runtime stage (the final image)</h3>
+              <pre className="day03__code">
+                {dockerfile.runtime.map((line, i) => (
+                  <code
+                    key={`r-${i}`}
+                    className={`day03__line${isCruftLine(line, 'runtime') ? ' day03__line--cruft' : ''}`}
+                  >
+                    {line}
+                  </code>
+                ))}
+              </pre>
+            </div>
+          )}
+        </section>
+      </div>
+
+      <details className="day03__reference">
+        <summary>Surgeon's reference (optimized Dockerfile)</summary>
+        <pre className="day03__code">
+          {targetDockerfile.split('\n').map((line, i) => (
+            <code key={`t-${i}`} className="day03__line">
+              {line}
+            </code>
+          ))}
+        </pre>
+      </details>
+
+      <CheckBar onCheck={check} onReset={reset} checkLabel="Close up" tone={tone} message={message} />
     </div>
   );
 }

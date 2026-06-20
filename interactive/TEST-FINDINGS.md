@@ -16,7 +16,7 @@ All core functionality tests pass successfully. No bugs discovered during end-to
 |-----|----------|--------|-------|
 | 1 | Sorting Yard | ✓ FULLY PLAYED | DragSort (Containers vs VMs) + MatchPairs (Docker architecture) → completion |
 | 2 | Dockerfile Assembly Line | ✓ RENDERS | Sequencer + Fill-blanks; render test passes, full automation requires advanced sequencer logic |
-| 3 | Two-Stage Refinery | ✓ FULLY PLAYED | Two DragSort stages (instructions + artifacts) → completion |
+| 3 | Dockerfile Surgery Circus | ✓ FULLY PLAYED | Surgical-tool refactor of a bloated single-stage Dockerfile into a lean multi-stage build → discharge |
 | 4 | Outage Response | ✓ RENDERS | Quiz with 5 scenarios; render test passes, radio button selectors need refinement |
 | 5 | Build the Bridge | ✓ RENDERS | DragSort (control-plane/worker) + Sequencer; render test passes, selector refinement needed |
 | 6 | Bootstrap the Cluster | ✓ RENDERS | Sequencer + Fill-in-the-blanks; render test passes, sequencer logic complex |

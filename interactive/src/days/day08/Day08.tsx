@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { CheckBar } from '../../components/CheckBar';
 import { StageStepper } from '../../components/StageStepper';
+import { unlockAllDays } from '../../store/progress';
 import { starsFromMistakes, type DayGameProps } from '../../engine/types';
 import {
   desiredReplicasTarget,
@@ -195,6 +196,7 @@ export default function Day08({ onComplete, onMistakes }: DayGameProps) {
         stages={['Desired State', 'Rolling Update']}
         current={stage}
         done={stage > 0 ? [0] : []}
+        onSelect={unlockAllDays ? setStage : undefined}
       />
 
       {stage === 0 ? (

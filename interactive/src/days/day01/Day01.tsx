@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { CheckBar } from '../../components/CheckBar';
 import { StageStepper } from '../../components/StageStepper';
+import { unlockAllDays } from '../../store/progress';
 import { DragSort } from '../../engine/DragSort';
 import { MatchPairs } from '../../engine/MatchPairs';
 import { shuffle } from '../../engine/shuffle';
@@ -108,6 +109,7 @@ export default function Day01({ onComplete, onMistakes }: DayGameProps) {
         stages={['Sort the cargo', 'Match the crew']}
         current={stage}
         done={stage > 0 ? [0] : []}
+        onSelect={unlockAllDays ? setStage : undefined}
       />
 
       {stage === 0 ? (
