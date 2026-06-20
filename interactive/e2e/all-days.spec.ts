@@ -373,7 +373,7 @@ test.skip('Day 7: Fully playable — YamlBuilder YAML assembly to completion', a
 });
 
 // ============================================================================
-// DAY 8 — Fleet Commander (custom simulator; may skip)
+// DAY 8 — Selector Starlock (custom selector forge + rollout sequencer)
 // ============================================================================
 
 test('Day 8: Initial render — no premature completion overlay', async ({ page }) => {
@@ -381,20 +381,16 @@ test('Day 8: Initial render — no premature completion overlay', async ({ page 
   const errorCapture = await captureErrors(page);
 
   await page.goto('/#/day/day08');
-  await expect(page.getByRole('heading', { name: 'Desired State' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Selector Starlock' })).toBeVisible();
   await expect(page.locator('.debrief')).toHaveCount(0);
 
   expect(errorCapture.pageErrors.length).toBe(0);
 });
 
-test.skip('Day 8: Fully playable — Fleet Commander simulator', async ({ page }) => {
-  // Day 8 is a custom simulator with slider, reconcile button, rolling updates.
-  // Complex logic; leaving as skipped for now.
-  // Would need to:
-  // 1. Set label-selector checkboxes (app=nginx, env=demo)
-  // 2. Set desired replicas slider to 3
-  // 3. Click "Reconcile" to heal pods
-  // 4. Do rolling update to v2
+test.skip('Day 8: Fully playable — Selector Starlock', async ({ page }) => {
+  // Covered by the full playthrough in remaining-plays.spec.ts.
+  // Stage 1: pick apiVersion apps/v1 + selector matchLabels (app:nginx, tier:backend), Apply.
+  // Stage 2: order the rollout steps (surge before drain) and Submit.
   await seedProgress(page);
   await page.goto('/#/day/day08');
   expect(true).toBe(true);
