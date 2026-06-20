@@ -13,7 +13,7 @@ export default defineConfig({
     reducedMotion: 'reduce',
   },
   webServer: {
-    command: 'npm run dev -- --port 4173 --strictPort',
+    command: 'npm run dev:gated -- --port 4173 --strictPort',
     url: 'http://localhost:4173',
     reuseExistingServer: true,
     timeout: 60_000,

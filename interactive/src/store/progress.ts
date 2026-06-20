@@ -38,8 +38,12 @@ export const useProgress = create<ProgressState>()(
   ),
 );
 
+/** Dev-only override: VITE_UNLOCK_ALL=true unlocks every day for previewing pages. */
+export const unlockAllDays = import.meta.env.VITE_UNLOCK_ALL === 'true';
+
 /** A day is unlocked when the previous day is completed. Day 1 is always open. */
 export function isDayUnlocked(dayId: number, days: Record<number, DayProgress>): boolean {
+  if (unlockAllDays) return true;
   if (dayId <= 1) return true;
   return days[dayId - 1]?.completed ?? false;
 }
