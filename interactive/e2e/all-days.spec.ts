@@ -318,15 +318,15 @@ test('Day 5: Initial render — no premature completion overlay', async ({ page 
   const errorCapture = await captureErrors(page);
 
   await page.goto('/#/day/day05');
-  await expect(page.getByRole('heading', { name: /Build the Bridge/ })).toBeVisible();
+  await expect(page.getByRole('heading', { name: /Binding Magistrate/ })).toBeVisible();
   await expect(page.locator('.debrief')).toHaveCount(0);
-  await expect(page.getByRole('button', { name: /Check|Submit/ })).toBeVisible();
+  await expect(page.locator('.checkbar button.btn--primary')).toBeVisible();
 
   expect(errorCapture.pageErrors.length).toBe(0);
 });
 
-test.skip('Day 5: Fully playable — DragSort + Sequencer to completion', async ({ page }) => {
-  // DragSort with different bucket names and sequencer; skipping for now
+test.skip('Day 5: Fully playable — covered in remaining-plays.spec.ts', async ({ page }) => {
+  // Full Binding Magistrate playthrough lives in remaining-plays.spec.ts.
   expect(true).toBe(true);
 });
 

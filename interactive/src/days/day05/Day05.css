@@ -1,23 +1,254 @@
 .day05 {
-  display: grid;
+  display: flex;
+  flex-direction: column;
   gap: var(--sp-4);
 }
 
 .day05__lede {
+  margin: 0;
   color: var(--text-muted);
   font-size: 0.95rem;
-  max-width: 60ch;
+  line-height: 1.55;
 }
 
 .day05__lede strong {
   color: var(--text);
 }
 
-.day05__lede code {
-  background-color: var(--surface);
+/* ===== Worker nodes ===== */
+.day05__nodes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: var(--sp-3);
+}
+
+.day05__node {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  padding: var(--sp-3);
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  transition: border-color var(--dur-fast) var(--ease-out);
+}
+
+.day05__node.is-over {
+  border-color: var(--danger);
+  box-shadow: 0 0 0 1px var(--danger) inset;
+}
+
+.day05__node-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-2);
+}
+
+.day05__node-name {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  color: var(--text);
+}
+
+.day05__node-flag {
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--danger);
+  border: 1px solid var(--danger-dim);
+  border-radius: var(--r-sm);
+  padding: 1px 6px;
+}
+
+.day05__node-cap {
+  display: flex;
+  gap: var(--sp-3);
+}
+
+.day05__cap {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.day05__node-meta,
+.day05__pod-req {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+}
+
+.day05__meta-none {
+  font-size: 0.78rem;
+  color: var(--text-faint);
+  font-style: italic;
+}
+
+.day05__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  padding: 2px 7px;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+}
+
+.day05__chip--label {
+  color: var(--active);
+  border-color: var(--active-dim);
+}
+
+.day05__chip--taint {
+  color: var(--danger);
+  border-color: var(--danger-dim);
+}
+
+.day05__chip--tol {
+  color: var(--accent);
+  border-color: var(--accent-dim);
+}
+
+/* ===== Pending Pods docket ===== */
+.day05__docket {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: var(--sp-3);
+}
+
+.day05__pod {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  padding: var(--sp-3);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  transition:
+    border-color var(--dur-fast) var(--ease-out),
+    box-shadow var(--dur-fast) var(--ease-out);
+}
+
+.day05__pod.is-bound {
+  border-color: var(--active-dim);
+}
+
+.day05__pod.is-bad {
+  border-color: var(--danger);
+  box-shadow: 0 0 0 1px var(--danger) inset;
+}
+
+.day05__pod-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--sp-2);
+}
+
+.day05__pod-name {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  color: var(--text);
+}
+
+.day05__pod-status {
+  font-size: 0.74rem;
+  font-family: var(--font-mono);
+  color: var(--text-faint);
+}
+
+.day05__pod.is-bound .day05__pod-status {
+  color: var(--active);
+}
+
+.day05__pod-note {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+.day05__bind-row,
+.day05__warrant-opts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+}
+
+.day05__bind-btn,
+.day05__opt {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  padding: 5px 11px;
+  background: var(--surface-raised);
+  color: var(--text-muted);
   border: 1px solid var(--border);
   border-radius: var(--r-sm);
-  padding: 0 var(--sp-2);
-  font-family: var(--font-mono);
+  cursor: pointer;
+  transition:
+    border-color var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out),
+    background var(--dur-fast) var(--ease-out);
+}
+
+.day05__bind-btn:hover,
+.day05__opt:hover {
+  border-color: var(--border-strong);
+  color: var(--text);
+}
+
+.day05__bind-btn:focus-visible,
+.day05__opt:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.day05__bind-btn.is-active,
+.day05__opt.is-active {
+  background: var(--active-dim);
+  border-color: var(--active);
+  color: var(--bg-sunk);
+  font-weight: 600;
+}
+
+/* ===== Stage 2 — warrants ===== */
+.day05__warrants {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+}
+
+.day05__warrant {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  padding: var(--sp-3);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  transition: border-color var(--dur-fast) var(--ease-out);
+}
+
+.day05__warrant.is-bad {
+  border-color: var(--danger);
+  box-shadow: 0 0 0 1px var(--danger) inset;
+}
+
+.day05__warrant-action {
+  margin: 0;
+  color: var(--text);
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+.day05__gavel {
+  display: inline-flex;
+  align-items: center;
   color: var(--accent);
 }

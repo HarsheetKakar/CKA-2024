@@ -29,40 +29,37 @@ async function setSequence(page: Page, targetLabels: string[]) {
   }
 }
 
-async function assignCrate(page: Page, label: string, bucket: string) {
-  const card = page.locator('.dragsort-card', { hasText: label });
-  await card.getByRole('button', { name: bucket, exact: true }).click();
-}
-
-test('Day 5 (Build the Bridge) is fully playable to completion', async ({ page }) => {
+test('Day 5 (Binding Magistrate) is fully playable to completion', async ({ page }) => {
   await unlockAll(page);
   await page.goto('/#/day/day05');
-  await expect(page.getByRole('heading', { name: 'Build the Bridge' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Binding Magistrate' })).toBeVisible();
 
-  // Stage 1 — place components on the right node.
-  const cp = 'Control-Plane (Bridge)';
-  const wk = 'Worker Node (Deck)';
-  await assignCrate(page, 'API server', cp);
-  await assignCrate(page, 'Scheduler', cp);
-  await assignCrate(page, 'etcd', cp);
-  await assignCrate(page, 'Controller Manager', cp);
-  await assignCrate(page, 'kubelet', wk);
-  await assignCrate(page, 'kube-proxy', wk);
-  await assignCrate(page, 'Container Runtime', wk);
-  await primaryCheck(page).click();
+  // Stage 1 — bind each Pending Pod to a lawful node (a known-good packing).
+  const bindings: [string, string][] = [
+    ['ml-trainer', 'gpu-1'],
+    ['inference', 'gpu-1'],
+    ['ssd-cache', 'edge-1'],
+    ['web', 'edge-1'],
+    ['worker', 'edge-2'],
+  ];
+  for (const [pod, node] of bindings) {
+    await page.getByRole('button', { name: `Bind ${pod} to ${node}`, exact: true }).click();
+  }
+  await primaryCheck(page).click(); // "Issue bindings"
 
-  // Stage 2 — order the request flow.
-  await setSequence(page, [
-    'kubectl apply (your command)',
-    'API Server receives the request',
-    'Authentication & validation',
-    'etcd stores desired state',
-    'Scheduler assigns a node',
-    'kubelet receives instructions',
-    'Container Runtime launches the container',
-    'kube-proxy wires networking',
-  ]);
-  await primaryCheck(page).click();
+  // Stage 2 — certify the trail: assign each lifecycle step to the right component.
+  await expect(page.locator('.day05__warrants')).toBeVisible();
+  const certify: [string, string][] = [
+    ['decide', 'Scheduler'],
+    ['persist', 'API server'],
+    ['store', 'etcd'],
+    ['run', 'kubelet'],
+    ['network', 'kube-proxy'],
+  ];
+  for (const [rowId, component] of certify) {
+    await page.getByRole('button', { name: `${rowId}: ${component}`, exact: true }).click();
+  }
+  await primaryCheck(page).click(); // "Certify"
 
   await expect(page.locator('.debrief')).toContainText('Voyage complete');
 });

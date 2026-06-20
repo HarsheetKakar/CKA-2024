@@ -1,33 +1,59 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
+import { Cpu, Gavel, MemoryStick, ShieldAlert, Tag } from 'lucide-react';
 import { CheckBar } from '../../components/CheckBar';
 import { StageStepper } from '../../components/StageStepper';
-import { unlockAllDays } from '../../store/progress';
-import { DragSort } from '../../engine/DragSort';
-import { Sequencer } from '../../engine/Sequencer';
-import { shuffle } from '../../engine/shuffle';
 import { starsFromMistakes, type DayGameProps } from '../../engine/types';
-import { nodeComponents, flowSteps, correctFlowOrder } from '../../data/day05';
+import {
+  clusterComponents,
+  day05Copy,
+  pendingPods,
+  warrantRows,
+  workerNodes,
+  type PendingPod,
+  type Taint,
+  type WorkerNode,
+} from '../../data/day05';
 import './Day05.css';
 
 type Tone = 'idle' | 'error' | 'success';
 
+/** Does the Pod's nodeSelector match every label on the node? */
+function selectorMatches(pod: PendingPod, node: WorkerNode): boolean {
+  if (!pod.nodeSelector) return true;
+  return Object.entries(pod.nodeSelector).every(([k, v]) => node.labels[k] === v);
+}
+
+/** Does the Pod tolerate the given taint (key + value + effect must all match)? */
+function tolerates(pod: PendingPod, taint: Taint): boolean {
+  return (pod.tolerations ?? []).some(
+    (t) => t.key === taint.key && t.value === taint.value && t.effect === taint.effect,
+  );
+}
+
+/** Are all of the node's NoSchedule taints tolerated by the Pod? */
+function taintsCleared(pod: PendingPod, node: WorkerNode): boolean {
+  return node.taints.every((t) => tolerates(pod, t));
+}
+
 export default function Day05({ onComplete, onMistakes }: DayGameProps) {
-  const dragItems = useMemo(() => shuffle(nodeComponents), []);
-  const flowItems = useMemo(() => shuffle(flowSteps), []);
-  const [flowOrder, setFlowOrder] = useState<string[]>(() => flowItems.map((f) => f.id));
+  const pods = useMemo(() => pendingPods, []);
+  const rows = useMemo(() => warrantRows, []);
 
   const [stage, setStage] = useState(0);
   const [mistakes, setMistakes] = useState(0);
 
-  // Stage 1 — DragSort (node components)
-  const [assignments, setAssignments] = useState<Record<string, string | null>>({});
-  const [dragInvalid, setDragInvalid] = useState<Set<string>>(new Set());
+  // Stage 1 — bindings: podId -> nodeId (or undefined while pending).
+  const [bindings, setBindings] = useState<Record<string, string | undefined>>({});
+  const [badPods, setBadPods] = useState<Set<string>>(new Set());
+  const [overNodes, setOverNodes] = useState<Set<string>>(new Set());
 
-  // Stage 2 — Sequencer (flow order)
-  const [flowInvalid, setFlowInvalid] = useState<Set<number>>(new Set());
+  // Stage 2 — attribution: rowId -> componentId.
+  const [picks, setPicks] = useState<Record<string, string | undefined>>({});
+  const [badRows, setBadRows] = useState<Set<string>>(new Set());
 
   const [tone, setTone] = useState<Tone>('idle');
   const [message, setMessage] = useState('');
+  const completedRef = useRef(false);
 
   function bump(count: number) {
     setMistakes((m) => {
@@ -37,59 +63,141 @@ export default function Day05({ onComplete, onMistakes }: DayGameProps) {
     });
   }
 
-  function checkDragSort() {
-    const unplaced = dragItems.filter((i) => !assignments[i.id]);
-    if (unplaced.length > 0) {
+  // Live remaining capacity per node, given current bindings (display only).
+  const remaining = useMemo(() => {
+    const rem: Record<string, { cpu: number; mem: number }> = {};
+    for (const n of workerNodes) rem[n.id] = { cpu: n.cpu, mem: n.mem };
+    for (const pod of pods) {
+      const nodeId = bindings[pod.id];
+      if (nodeId && rem[nodeId]) {
+        rem[nodeId].cpu -= pod.cpu;
+        rem[nodeId].mem -= pod.mem;
+      }
+    }
+    return rem;
+  }, [bindings, pods]);
+
+  function bind(podId: string, nodeId: string) {
+    if (stage !== 0) return;
+    setBindings((b) => ({ ...b, [podId]: nodeId }));
+    setBadPods((s) => {
+      if (!s.has(podId)) return s;
+      const next = new Set(s);
+      next.delete(podId);
+      return next;
+    });
+    setTone('idle');
+    setMessage('');
+  }
+
+  function checkBench() {
+    const unbound = pods.filter((p) => !bindings[p.id]);
+    if (unbound.length > 0) {
       setTone('error');
-      setMessage(`Assign all components first — ${unplaced.length} still unplaced.`);
+      setMessage(`Bind every Pod first — ${unbound.length} still pending at the bench.`);
       return;
     }
 
-    const wrong = dragItems.filter((i) => assignments[i.id] !== i.correct);
-    if (wrong.length > 0) {
-      setDragInvalid(new Set(wrong.map((i) => i.id)));
-      bump(wrong.length);
+    // Per-node aggregate load (order-independent capacity check).
+    const load: Record<string, { cpu: number; mem: number; pods: string[] }> = {};
+    for (const n of workerNodes) load[n.id] = { cpu: 0, mem: 0, pods: [] };
+    for (const pod of pods) {
+      const nodeId = bindings[pod.id]!;
+      load[nodeId].cpu += pod.cpu;
+      load[nodeId].mem += pod.mem;
+      load[nodeId].pods.push(pod.id);
+    }
+
+    const invalid = new Set<string>();
+    const over = new Set<string>();
+    let selectorTaintViolations = 0;
+
+    for (const pod of pods) {
+      const node = workerNodes.find((n) => n.id === bindings[pod.id])!;
+      if (!selectorMatches(pod, node) || !taintsCleared(pod, node)) {
+        invalid.add(pod.id);
+        selectorTaintViolations += 1;
+      }
+    }
+    for (const n of workerNodes) {
+      if (load[n.id].cpu > n.cpu || load[n.id].mem > n.mem) {
+        over.add(n.id);
+        for (const pid of load[n.id].pods) invalid.add(pid);
+      }
+    }
+
+    if (invalid.size > 0) {
+      setBadPods(invalid);
+      setOverNodes(over);
+      bump(invalid.size);
+      const parts: string[] = [];
+      if (selectorTaintViolations > 0) {
+        parts.push(
+          `${selectorTaintViolations} Pod(s) on a node that fails their nodeSelector or taint`,
+        );
+      }
+      if (over.size > 0) {
+        parts.push(`${over.size} node(s) over capacity`);
+      }
       setTone('error');
-      setMessage(`${wrong.length} component(s) on the wrong node. Rearrange and check again.`);
+      setMessage(`Unlawful bindings: ${parts.join(' · ')}. Rebind and check again.`);
       return;
     }
 
-    setDragInvalid(new Set());
+    setBadPods(new Set());
+    setOverNodes(new Set());
     setTone('success');
-    setMessage('Bridge architecture complete. Now trace the request flow.');
+    setMessage(day05Copy.benchDone);
     setStage(1);
   }
 
-  function checkFlowOrder() {
-    const wrong: number[] = [];
-    flowOrder.forEach((id, idx) => {
-      if (correctFlowOrder[idx] !== id) {
-        wrong.push(idx);
-      }
+  function pickComponent(rowId: string, componentId: string) {
+    if (stage !== 1) return;
+    setPicks((p) => ({ ...p, [rowId]: componentId }));
+    setBadRows((s) => {
+      if (!s.has(rowId)) return s;
+      const next = new Set(s);
+      next.delete(rowId);
+      return next;
     });
+    setTone('idle');
+    setMessage('');
+  }
 
-    if (wrong.length > 0) {
-      setFlowInvalid(new Set(wrong));
-      bump(wrong.length);
+  function checkCertify() {
+    const unanswered = rows.filter((r) => !picks[r.id]);
+    if (unanswered.length > 0) {
       setTone('error');
-      setMessage(`${wrong.length} step(s) out of order. Reorder and check again.`);
+      setMessage(`Assign a component to every step — ${unanswered.length} still blank.`);
       return;
     }
 
-    setFlowInvalid(new Set());
+    const wrong = new Set(rows.filter((r) => picks[r.id] !== r.answer).map((r) => r.id));
+    if (wrong.size > 0) {
+      setBadRows(wrong);
+      bump(wrong.size);
+      setTone('error');
+      setMessage(`${wrong.size} step(s) assigned to the wrong component. Reassign and certify again.`);
+      return;
+    }
+
+    setBadRows(new Set());
     setTone('success');
-    setMessage('Request flows perfectly. Bridge is built!');
-    const finalMistakes = mistakes;
-    onComplete(starsFromMistakes(finalMistakes, 2));
+    setMessage(day05Copy.certifyDone);
+    if (!completedRef.current) {
+      completedRef.current = true;
+      onComplete(starsFromMistakes(mistakes, 2));
+    }
   }
 
   function reset() {
     if (stage === 0) {
-      setAssignments({});
-      setDragInvalid(new Set());
+      setBindings({});
+      setBadPods(new Set());
+      setOverNodes(new Set());
     } else {
-      setFlowOrder(flowItems.map((f) => f.id));
-      setFlowInvalid(new Set());
+      setPicks({});
+      setBadRows(new Set());
     }
     setTone('idle');
     setMessage('');
@@ -98,56 +206,165 @@ export default function Day05({ onComplete, onMistakes }: DayGameProps) {
   return (
     <div className="day05">
       <StageStepper
-        stages={['Assign components', 'Trace the flow']}
+        stages={['Issue bindings', 'Certify the trail']}
         current={stage}
         done={stage > 0 ? [0] : []}
-        onSelect={unlockAllDays ? setStage : undefined}
       />
 
       {stage === 0 ? (
         <>
-          <p className="day05__lede">
-            A Kubernetes cluster has a <strong>Control-Plane (bridge)</strong> coordinating
-            requests, and <strong>Worker nodes (deck)</strong> running workloads. Drag each
-            component to its correct node.
-          </p>
-          <DragSort
-            items={dragItems}
-            buckets={[
-              {
-                id: 'control-plane',
-                label: 'Control-Plane (Bridge)',
-                hint: 'Commands and decisions',
-              },
-              { id: 'worker', label: 'Worker Node (Deck)', hint: 'Runs the containers' },
-            ]}
-            assignments={assignments}
-            onAssign={(id, bucket) => setAssignments((a) => ({ ...a, [id]: bucket }))}
-            invalidIds={dragInvalid}
-            poolLabel="Components waiting to be assigned"
+          <p className="day05__lede">{day05Copy.lede}</p>
+
+          <div className="day05__nodes" aria-label="Worker nodes">
+            {workerNodes.map((node) => {
+              const rem = remaining[node.id];
+              const over = overNodes.has(node.id) || rem.cpu < 0 || rem.mem < 0;
+              return (
+                <div key={node.id} className={`day05__node ${over ? 'is-over' : ''}`}>
+                  <div className="day05__node-head">
+                    <span className="day05__node-name">{node.name}</span>
+                    {over && <span className="day05__node-flag">OVER CAPACITY</span>}
+                  </div>
+                  <div className="day05__node-cap">
+                    <span className="day05__cap">
+                      <Cpu size={13} aria-hidden="true" /> {rem.cpu}/{node.cpu} CPU
+                    </span>
+                    <span className="day05__cap">
+                      <MemoryStick size={13} aria-hidden="true" /> {rem.mem}/{node.mem} Gi
+                    </span>
+                  </div>
+                  <div className="day05__node-meta">
+                    {Object.entries(node.labels).length === 0 && node.taints.length === 0 && (
+                      <span className="day05__meta-none">no labels · no taints</span>
+                    )}
+                    {Object.entries(node.labels).map(([k, v]) => (
+                      <span key={k} className="day05__chip day05__chip--label">
+                        <Tag size={11} aria-hidden="true" /> {k}={v}
+                      </span>
+                    ))}
+                    {node.taints.map((t) => (
+                      <span key={t.key} className="day05__chip day05__chip--taint">
+                        <ShieldAlert size={11} aria-hidden="true" /> {t.key}={t.value}:{t.effect}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          <div className="day05__docket" aria-label="Pending Pods">
+            {pods.map((pod) => {
+              const boundTo = bindings[pod.id];
+              const boundNode = workerNodes.find((n) => n.id === boundTo);
+              const bad = badPods.has(pod.id);
+              return (
+                <div
+                  key={pod.id}
+                  className={`day05__pod ${bad ? 'is-bad' : ''} ${boundTo ? 'is-bound' : ''}`}
+                >
+                  <div className="day05__pod-head">
+                    <span className="day05__pod-name">{pod.name}</span>
+                    <span className="day05__pod-status">
+                      {boundNode ? `bound → ${boundNode.name}` : 'Pending'}
+                    </span>
+                  </div>
+                  <div className="day05__pod-req">
+                    <span className="day05__cap">
+                      <Cpu size={12} aria-hidden="true" /> {pod.cpu}
+                    </span>
+                    <span className="day05__cap">
+                      <MemoryStick size={12} aria-hidden="true" /> {pod.mem}Gi
+                    </span>
+                    {pod.nodeSelector &&
+                      Object.entries(pod.nodeSelector).map(([k, v]) => (
+                        <span key={k} className="day05__chip day05__chip--label">
+                          <Tag size={11} aria-hidden="true" /> needs {k}={v}
+                        </span>
+                      ))}
+                    {pod.tolerations?.map((t) => (
+                      <span key={t.key} className="day05__chip day05__chip--tol">
+                        <ShieldAlert size={11} aria-hidden="true" /> tolerates {t.key}={t.value}
+                      </span>
+                    ))}
+                  </div>
+                  <p className="day05__pod-note">{pod.note}</p>
+                  <div className="day05__bind-row" role="group" aria-label={`Bind ${pod.name}`}>
+                    {workerNodes.map((node) => (
+                      <button
+                        key={node.id}
+                        type="button"
+                        className={`day05__bind-btn ${boundTo === node.id ? 'is-active' : ''}`}
+                        aria-label={`Bind ${pod.name} to ${node.name}`}
+                        aria-pressed={boundTo === node.id}
+                        onClick={() => bind(pod.id, node.id)}
+                      >
+                        {node.name}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          <CheckBar
+            onCheck={checkBench}
+            onReset={reset}
+            checkLabel="Issue bindings"
+            tone={tone}
+            message={message}
           />
-          <CheckBar onCheck={checkDragSort} onReset={reset} tone={tone} message={message} />
         </>
       ) : (
         <>
           <p className="day05__lede">
-            When you run <code>kubectl apply</code>, the cluster springs into action. Order the
-            steps of this magical request flow.
+            The bindings are issued. Now certify the trail: assign each step of the bind→run
+            lifecycle to the one component responsible. The scheduler only decides — it never
+            runs Pods or writes to etcd itself.
           </p>
-          <Sequencer
-            items={flowItems}
-            order={flowOrder}
-            onReorder={setFlowOrder}
-            invalidPositions={flowInvalid}
-            slotLabel="Step"
-          />
+
+          <div className="day05__warrants" aria-label="Lifecycle steps">
+            {rows.map((row) => {
+              const pick = picks[row.id];
+              const bad = badRows.has(row.id);
+              return (
+                <div key={row.id} className={`day05__warrant ${bad ? 'is-bad' : ''}`}>
+                  <p className="day05__warrant-action">{row.action}</p>
+                  <div
+                    className="day05__warrant-opts"
+                    role="group"
+                    aria-label={`Component for: ${row.action}`}
+                  >
+                    {clusterComponents.map((c) => (
+                      <button
+                        key={c.id}
+                        type="button"
+                        className={`day05__opt ${pick === c.id ? 'is-active' : ''}`}
+                        aria-label={`${row.id}: ${c.label}`}
+                        aria-pressed={pick === c.id}
+                        onClick={() => pickComponent(row.id, c.id)}
+                      >
+                        {c.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
           <CheckBar
-            onCheck={checkFlowOrder}
+            onCheck={checkCertify}
             onReset={reset}
-            checkLabel="Submit"
+            checkLabel="Certify"
             tone={tone}
             message={message}
-          />
+          >
+            <span className="day05__gavel" aria-hidden="true">
+              <Gavel size={15} />
+            </span>
+          </CheckBar>
         </>
       )}
     </div>
