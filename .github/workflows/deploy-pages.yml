@@ -44,6 +44,9 @@ jobs:
 
       - name: Build
         run: npm run build
+        env:
+          # Open all days/games on the public site (no gated progression).
+          VITE_UNLOCK_ALL: 'true'
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
